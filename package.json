@@ -5,13 +5,13 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win portable"
+    "build": "electron-builder --win portable && npx rcedit release\\win-unpacked\\Kanota.exe --set-icon icon.ico"
   },
   "build": {
     "appId": "com.kanota.app",
     "productName": "Kanota",
     "directories": {
-      "output": "dist-exe"
+      "output": "release"
     },
     "files": [
       "main.js",
@@ -35,6 +35,7 @@
     "electron": "^35.0.0",
     "electron-builder": "^25.1.8",
     "png-to-ico": "^3.0.1",
+    "rcedit": "^5.0.1",
     "sharp": "^0.35.2",
     "to-ico": "^1.1.5"
   }

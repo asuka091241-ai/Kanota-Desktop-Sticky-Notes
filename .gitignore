@@ -3,6 +3,7 @@ out/
 dist/
 dist-new/
 dist-exe/
+release/
 *.exe
 *.lnk
 .env
