@@ -67,10 +67,10 @@ function createStickyWindow(cardData, screenX, screenY) {
   const y = screenY - 16 - SHADOW_PAD;
 
   const stickyWin = new BrowserWindow({
-    width: 260 + SHADOW_PAD * 2,
+    width: 340 + SHADOW_PAD * 2,
     height: 54 + SHADOW_PAD * 2,
     x, y,
-    minWidth: 200,
+    minWidth: 280,
     minHeight: 54,
     frame: false,
     transparent: true,
@@ -267,6 +267,10 @@ ipcMain.on('sticky:changeStatus', (event, flow) => {
   }
   if (srcIdx >= 0) {
     const [card] = data[srcCol].splice(srcIdx, 1);
+    // Carry sticky's timer / pomo stats to the kanban card before moving
+    card._timerElapsed = d._timerElapsed ?? card._timerElapsed;
+    card._pomoSessions = d._pomoSessions ?? card._pomoSessions;
+    card._pomoTotalMin = d._pomoTotalMin ?? card._pomoTotalMin;
     const dstCol = srcCol === 'todo' ? 'inProgress' : 'done';
     if (!data[dstCol]) data[dstCol] = [];
     data[dstCol].push(card);
@@ -281,20 +285,90 @@ ipcMain.on('sticky:changeStatus', (event, flow) => {
   }
 });
 
+// ===== Drag: main process polls cursor at high rate, zero IPC per frame =====
+ipcMain.on('sticky:dragInit', (event, screenX, screenY) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win || win.isDestroyed()) return;
+  const [wx, wy] = win.getPosition();
+  const { width, height } = win.getBounds();
+  const cx = screenX, cy = screenY;
+  win._dPoll = setInterval(() => {
+    if (!win || win.isDestroyed()) { clearInterval(win._dPoll); return; }
+    const cur = screen.getCursorScreenPoint();
+    win.setBounds({ x: wx + (cur.x - cx), y: wy + (cur.y - cy), width, height });
+  }, 6); // ~160fps
+});
+
+ipcMain.on('sticky:dragEnd', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win && win._dPoll) { clearInterval(win._dPoll); win._dPoll = null; }
+});
+
+// ===== Resize: main process polls cursor at high rate, zero IPC per frame =====
+ipcMain.on('sticky:resizeInit', (event, screenX, screenY, direction) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win || win.isDestroyed()) return;
+  const SHADOW_PAD = 10;
+  const MIN_W = 260 + SHADOW_PAD * 2;
+  const MIN_H = 54 + SHADOW_PAD * 2;
+  const init = win.getBounds();
+  const sx = screenX, sy = screenY;
+  win._rPoll = setInterval(() => {
+    if (!win || win.isDestroyed()) { clearInterval(win._rPoll); return; }
+    const cur = screen.getCursorScreenPoint();
+    let { x, y, width, height } = init;
+    if (direction === 'r' || direction === 'br') {
+      width = Math.max(MIN_W, init.width + (cur.x - sx));
+    }
+    if (direction === 'b' || direction === 'br') {
+      height = Math.max(MIN_H, init.height + (cur.y - sy));
+    }
+    win.setBounds({ x, y, width, height });
+  }, 6);
+});
+
+ipcMain.on('sticky:resizeEnd', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (win && win._rPoll) { clearInterval(win._rPoll); win._rPoll = null; }
+});
+
 ipcMain.on('sticky:resize', (event, height) => {
   const win = BrowserWindow.fromWebContents(event.sender);
   if (!win || win.isDestroyed()) return;
-  const bounds = win.getBounds();
-  const w = Math.max(200, bounds.width);
-  const h = Math.max(54, height);
-  win.setBounds({ x: bounds.x, y: bounds.y, width: w, height: h });
+  const b = win.getBounds();
+  const h = Math.max(54, typeof height === 'number' ? height : 54);
+  const SHADOW_PAD = 10;
+  win.setBounds({ x: b.x, y: b.y, width: b.width, height: h + SHADOW_PAD * 2 });
 });
 
-ipcMain.on('sticky:dragMove', (event, dx, dy) => {
+ipcMain.handle('sticky:savePomoStats', (event, cardId, sessions, totalMin) => {
   const win = BrowserWindow.fromWebContents(event.sender);
-  if (!win || win.isDestroyed()) return;
-  const [x, y] = win.getPosition();
-  win.setPosition(x + dx, y + dy);
+  const data = readData();
+  // Save to sticky data
+  const idx = (data._stickies || []).findIndex(c => c.id === cardId);
+  if (idx >= 0) {
+    data._stickies[idx]._pomoSessions = sessions;
+    data._stickies[idx]._pomoTotalMin = totalMin;
+    if (win && !win.isDestroyed() && win.cardData) {
+      win.cardData._pomoSessions = sessions;
+      win.cardData._pomoTotalMin = totalMin;
+    }
+  }
+  // Also save to kanban card
+  const d = data._stickies[idx];
+  if (d) {
+    const refId = d._refId || d.id;
+    for (const col of ['todo', 'inProgress', 'done']) {
+      const card = (data[col] || []).find(c => c.id === refId);
+      if (card) {
+        card._pomoSessions = sessions;
+        card._pomoTotalMin = totalMin;
+        break;
+      }
+    }
+  }
+  writeData(data);
+  return true;
 });
 
 ipcMain.handle('sticky:showContextMenu', (event, payload = {}) => {
@@ -388,7 +462,15 @@ ipcMain.on('sticky:addPomoTime', (_, cardId, ms) => {
     const card = (data[col] || []).find(c => c.id === cardId);
     if (card) {
       card._timerElapsed = (card._timerElapsed || 0) + ms;
+      // Also sync to sticky entry
+      const sIdx = (data._stickies || []).findIndex(s => s.id === cardId);
+      if (sIdx >= 0) data._stickies[sIdx]._timerElapsed = card._timerElapsed;
       writeData(data);
+      // Update the sticky window's in-memory data if it's open
+      const sw = stickyWindows.get(cardId);
+      if (sw && !sw.isDestroyed() && sw.cardData) {
+        sw.cardData._timerElapsed = card._timerElapsed;
+      }
       if (mainWindow && !mainWindow.isDestroyed()) {
         try { mainWindow.webContents.send('sticky:addPomoTimeResult', cardId, card._timerElapsed); } catch (_) {}
       }
@@ -490,10 +572,38 @@ ipcMain.handle('ui-remove-sticky', (_, cardId) => {
 });
 
 ipcMain.handle('sync-sticky-data', (_, cardData) => {
-  const w = stickyWindows.get(cardData.id);
-  if (w && !w.isDestroyed()) {
-    w.cardData = cardData;
-    w.webContents.send('sticky:update', cardData);
+  let w = stickyWindows.get(cardData.id);
+  // Fallback: search by _refId if direct ID lookup misses
+  if (!w || w.isDestroyed()) {
+    for (const [, sWin] of stickyWindows) {
+      if (!sWin || sWin.isDestroyed()) continue;
+      if (sWin.cardData && (sWin.cardData._refId === cardData.id || sWin.cardData._refId === cardData._refId)) {
+        w = sWin; break;
+      }
+    }
+  }
+  if (!w || w.isDestroyed()) return false;
+
+  const data = readData();
+  const stickyId = w.cardData ? w.cardData.id : cardData.id;
+  const sIdx = (data._stickies || []).findIndex(s => s.id === stickyId);
+  if (sIdx >= 0) {
+    const s = data._stickies[sIdx];
+    s.title = cardData.title;
+    s.desc = cardData.desc;
+    s.noteColor = cardData.noteColor;
+    s._timerElapsed = cardData._timerElapsed;
+    s._pomoSessions = cardData._pomoSessions;
+    s._pomoTotalMin = cardData._pomoTotalMin;
+    // Use explicit target column if provided, otherwise search
+    if (cardData._toCol && ['todo', 'inProgress', 'done'].includes(cardData._toCol)) {
+      s._sourceCol = cardData._toCol;
+      s._stickyStatus = cardData._toCol;
+    }
+    s.time = cardData.time || s.time;
+    writeData(data);
+    w.cardData = { ...s };
+    w.webContents.send('sticky:update', w.cardData);
   }
   return true;
 });

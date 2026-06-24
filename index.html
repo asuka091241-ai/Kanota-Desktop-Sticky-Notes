@@ -134,19 +134,6 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;backgroun
 [data-theme="dark"] .card-title[contenteditable]{background:rgba(255,255,255,0.06)}
 .card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
 .card-time{font-size:10px;color:var(--text3)}
-/* Timer inside card */
-.card-timer{display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
-.card-timer .tm-btn{width:20px;height:20px;border:none;background:rgba(0,0,0,0.06);border-radius:50%;cursor:pointer;font-size:10px;display:grid;place-items:center;color:rgba(0,0,0,0.5);transition:all .15s;flex-shrink:0}
-.card-timer .tm-btn:hover{background:var(--accent);color:#fff}
-.card-timer .tm-btn.running{background:#f59e0b;color:#fff;animation:tmPulse 1.2s ease-in-out infinite}
-@keyframes tmPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.4)}50%{box-shadow:0 0 0 6px rgba(245,158,11,0)}}
-.card-timer .tm-display{font-size:11px;font-weight:600;color:var(--accent);min-width:50px}
-.card-timer .tm-display.running{color:#f59e0b}
-[data-theme="dark"] .card-timer .tm-btn{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.4)}
-[data-theme="dark"] .card-timer .tm-btn:hover{background:var(--accent);color:#fff}
-/* Column stats */
-.col-stat{padding:2px 2px 8px;font-size:11px;color:var(--text3);font-weight:500}
-.col-stat.some{color:var(--accent)}
 .card-acts{display:flex;gap:3px;opacity:0;transition:opacity .15s}
 .card:hover .card-acts{opacity:1}
 .card-act{width:22px;height:22px;border:none;background:rgba(0,0,0,0.04);border-radius:4px;cursor:pointer;font-size:11px;color:var(--text2);display:grid;place-items:center;transition:all .12s}
@@ -706,12 +693,6 @@ function bindStickyEvents() {
       // Main process already updated the data file; reload to stay in sync
       data = await window.electronAPI.loadData();
       migrateData();
-      // Auto-stop timer when moved to done or back to todo from inProgress
-      if (newStatus === 'done' || newStatus === 'todo') {
-        const loc = findCardById(cardId);
-        if (loc && loc.col === 'inProgress') stopTimerForCard(loc.card);
-        save();
-      }
       renderAll();
     });
   }
@@ -865,17 +846,10 @@ async function dropAsSticky() {
 
 // ===== Kanban Rendering =====
 function renderKanban() {
-  const timerCards = []; // collect running card elements for live update
   for (const [col, id] of Object.entries(COLS)) {
     const ct = document.getElementById(id);
     if (!ct) continue;
     ct.innerHTML = '';
-    // Column stats row
-    const sumMs = (data[col] || []).reduce((s, c) => s + (c._timerElapsed || 0), 0);
-    const statRow = document.createElement('div');
-    statRow.className = 'col-stat' + (sumMs > 0 ? ' some' : '');
-    statRow.textContent = sumMs > 0 ? formatMs(sumMs) : '--';
-    ct.appendChild(statRow);
     (data[col] || []).forEach((card, idx) => {
       const el = document.createElement('div');
       el.className = 'card';
@@ -885,24 +859,13 @@ function renderKanban() {
       el.dataset.idx = idx;
       el.dataset.id = card.id;
       const title = cardTitle(card);
-      const isRunning = card._timerRunning;
-      const elapsed = card._timerElapsed || 0;
       el.innerHTML = `<div class="card-title">${esc(title)}</div>
         <div class="card-foot">
           <span class="card-time">${card.time || ''}</span>
-          <div class="card-timer">
-            <button class="tm-btn${isRunning ? ' running' : ''}" data-action="timer" title="${isRunning ? '暂停' : '开始计时'}">${isRunning ? '\u23F8' : '\u25B6'}</button>
-            <span class="tm-display${isRunning ? ' running' : ''}" data-action="timer">${formatMs(elapsed)}</span>
-          </div>
           <div class="card-acts">
             <button class="card-act e-pop" title="打开详情">&#x25C6;</button>
           </div>
         </div>`;
-      // Timer toggle
-      el.querySelector('.card-timer').onclick = (e) => {
-        e.stopPropagation();
-        toggleCardTimer(card, col, idx);
-      };
       el.addEventListener('dragstart', onDS);
       el.addEventListener('dragend', onDE);
       el.addEventListener('dragover', e => e.preventDefault());
@@ -950,7 +913,6 @@ function renderKanban() {
         openNoteForCard(card, col);
       };
       ct.appendChild(el);
-      if (isRunning) timerCards.push(el.querySelector('.tm-display'));
     });
     // Column drag-over for moving between columns
     ct.ondragover = e => {
@@ -990,6 +952,8 @@ function moveCardBetween(fromCol, toCol, cardId) {
   updateDashboard();
   updateTabCounts();
   save();
+  // Sync sticky window when card moves between columns — pass target column directly
+  window.electronAPI.syncStickyData({ ...cd, _toCol: toCol });
 }
 
 function onDS(e) {
@@ -1120,10 +1084,6 @@ function saveNoteModal() {
     // Kanban card: handle column change
     syncCardToStickies(card.id);
     if (newStatus !== col) {
-      // Auto-stop timer when moving to "done" or back to "todo"
-      if (col === 'inProgress' && (newStatus === 'done' || newStatus === 'todo')) {
-        stopTimerForCard(card);
-      }
       const idx = data[col].indexOf(card);
       if (idx >= 0) {
         data[col].splice(idx, 1);
@@ -1322,77 +1282,6 @@ async function clearTrash() {
   renderTrash();
   updateTrashBadge();
 }
-
-// ===== Timer =====
-function formatMs(ms) {
-  if (!ms || ms < 0) return '00:00';
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-}
-
-function findCardById(cardId) {
-  for (const col of Object.keys(COLS)) {
-    const idx = (data[col] || []).findIndex(c => c.id === cardId);
-    if (idx >= 0) return { card: data[col][idx], col, idx };
-  }
-  return null;
-}
-
-function toggleCardTimer(card, col, idx) {
-  if (card._timerRunning) {
-    // Pause: accumulate elapsed
-    if (card._timerStartedAt) {
-      card._timerElapsed = (card._timerElapsed || 0) + (Date.now() - new Date(card._timerStartedAt).getTime());
-    }
-    card._timerRunning = false;
-    card._timerStartedAt = null;
-  } else {
-    // Start
-    card._timerRunning = true;
-    card._timerStartedAt = new Date().toISOString();
-    card._timerElapsed = card._timerElapsed || 0;
-  }
-  save();
-  renderKanban();
-}
-
-function stopTimerForCard(card) {
-  if (!card._timerRunning) return;
-  if (card._timerStartedAt) {
-    card._timerElapsed = (card._timerElapsed || 0) + (Date.now() - new Date(card._timerStartedAt).getTime());
-  }
-  card._timerRunning = false;
-  card._timerStartedAt = null;
-}
-
-// Live update loop for running timers (every second)
-let _tmrInterval = null;
-function startTimerLoop() {
-  if (_tmrInterval) return;
-  _tmrInterval = setInterval(() => {
-    for (const col of Object.keys(COLS)) {
-      (data[col] || []).forEach(card => {
-        if (!card._timerRunning || !card._timerStartedAt) return;
-        const elapsed = (card._timerElapsed || 0) + (Date.now() - new Date(card._timerStartedAt).getTime());
-        // Update the DOM for this card's timer display
-        const colEl = document.getElementById(COLS[col]);
-        if (!colEl) return;
-        const cards = colEl.querySelectorAll('.card');
-        cards.forEach(el => {
-          if (el.dataset.id === card.id) {
-            const disp = el.querySelector('.tm-display');
-            if (disp) disp.textContent = formatMs(elapsed);
-          }
-        });
-      });
-    }
-  }, 1000);
-}
-startTimerLoop();
 
 // ===== Settings =====
 function bindSettings() {

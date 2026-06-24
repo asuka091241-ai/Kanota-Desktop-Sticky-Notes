@@ -6,7 +6,9 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;background:transparent;overflow:hidden;user-select:none}
 body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;font-size:13px;padding:10px}
-.win{width:260px;border-radius:10px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.18)}
+.win{width:100%;min-width:260px;border-radius:10px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.18)}
+
+/* ===== Bar ===== */
 .bar{flex-shrink:0;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 10px}
 .bar-l{display:flex;align-items:center;gap:8px;flex:1;min-width:0;overflow:hidden;cursor:grab}
 .bar-l.pinned{cursor:default}
@@ -18,15 +20,10 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;font-size
 .btn{width:24px;height:24px;border:none;background:transparent;border-radius:4px;cursor:pointer;font-size:12px;color:rgba(0,0,0,0.4);display:grid;place-items:center;transition:background .12s}
 .btn:hover{background:rgba(0,0,0,0.08)}
 .btn.on{color:#f59e0b}
-.pomo{position:relative}
-.pomo-btn{width:24px;height:24px;border:none;background:transparent;border-radius:4px;cursor:pointer;font-size:13px;display:grid;place-items:center;transition:background .12s}
-.pomo-btn:hover{background:rgba(0,0,0,0.08)}
-.pomo-btn.active{background:rgba(239,68,68,0.15);color:#ef4444;animation:tmPulse 1s ease-in-out infinite}
-@keyframes tmPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.3)}50%{box-shadow:0 0 0 4px rgba(239,68,68,0)}}
-.pomo-display{font-size:10px;font-weight:700;color:#ef4444;margin-right:4px;font-variant-numeric:tabular-nums;min-width:36px;text-align:right}
-.pomo-display.done{color:#10b981}
 .flow{font-size:11px;font-weight:600;padding:0 7px;width:auto;color:var(--fc,#f59e0b);background:rgba(0,0,0,0.05)}
 .flow:hover{background:rgba(0,0,0,0.1)}
+
+/* ===== Content ===== */
 .content{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .content.hide{display:none}
 .c-title{padding:6px 14px 0;font-size:15px;font-weight:700;line-height:1.3;color:rgba(0,0,0,0.85);word-break:break-word;animation:fadeIn .25s ease}
@@ -34,12 +31,109 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;font-size
 .c-body{flex:1;padding:6px 14px 12px;overflow-y:auto;font-size:12px;line-height:1.6;color:rgba(0,0,0,0.55);word-break:break-word;animation:fadeIn .35s ease}
 .c-time{padding:0 14px 8px;font-size:10px;color:rgba(0,0,0,0.25);animation:fadeIn .4s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== Pomodoro Strip ===== */
+.pomo-strip{flex-shrink:0;height:0;overflow:hidden;display:flex;flex-direction:column;border-top:0px solid rgba(0,0,0,0.06);transition:height .25s cubic-bezier(.4,0,.2,1),border-top-width .25s,padding .25s}
+.pomo-strip.open{height:52px;border-top-width:1px}
+.pomo-strip.open.config{height:86px}
+.ps-row{display:flex;align-items:center;gap:10px;flex-shrink:0;height:52px;padding:0 10px}
+.ps-ring-wrap{position:relative;width:36px;height:36px;flex-shrink:0}
+.ps-ring-svg{width:36px;height:36px;transform:rotate(-90deg)}
+.ps-ring-bg{fill:none;stroke-width:3;transition:stroke .3s}
+.ps-ring-fg{fill:none;stroke-width:3;stroke-linecap:round;transition:stroke .3s}
+
+/* idle state: pale */
+.ps-ring-wrap .ps-ring-bg{stroke:rgba(0,0,0,0.06)}
+.ps-ring-wrap .ps-ring-fg{stroke:rgba(0,0,0,0.08)}
+/* active (panel open, timer or paused): normal */
+.ps-ring-wrap.active .ps-ring-bg{stroke:rgba(239,68,68,0.12)}
+.ps-ring-wrap.active .ps-ring-fg{stroke:#ef4444}
+/* break mode */
+.ps-ring-wrap.break .ps-ring-bg{stroke:rgba(16,185,129,0.12)}
+.ps-ring-wrap.break .ps-ring-fg{stroke:#10b981}
+
+.ps-ring-min{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:rgba(0,0,0,0.4);font-variant-numeric:tabular-nums;font-family:"Sora","Microsoft YaHei","Segoe UI",sans-serif;transition:color .3s}
+.ps-ring-wrap.active .ps-ring-min{color:rgba(0,0,0,0.7)}
+.ps-ring-wrap.break .ps-ring-min{color:#10b981}
+
+.ps-info{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.ps-label{font-size:10px;font-weight:700;color:#ef4444;letter-spacing:.03em;transition:color .3s}
+.ps-label.break{color:#10b981}
+.ps-stats{font-size:9px;color:rgba(0,0,0,0.35)}
+.ps-stats b{font-weight:600;color:rgba(0,0,0,0.5)}
+.ps-ctrls{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.ps-sec{font-size:16px;font-weight:700;color:rgba(0,0,0,0.4);font-variant-numeric:tabular-nums;min-width:28px;text-align:center;font-family:"Sora","Microsoft YaHei","Segoe UI",sans-serif;transition:color .3s}
+.ps-ring-wrap.active ~ .ps-ctrls .ps-sec{color:rgba(0,0,0,0.7)}
+.ps-ring-wrap.break ~ .ps-ctrls .ps-sec{color:#10b981}
+
+.ps-play{width:28px;height:28px;border:none;background:#ef4444;border-radius:50%;cursor:pointer;color:#fff;font-size:11px;display:grid;place-items:center;transition:all .12s;box-shadow:0 1px 4px rgba(239,68,68,0.25)}
+.ps-play:hover{background:#dc2626;transform:scale(1.08)}
+.ps-play.paused{background:#f59e0b;box-shadow:0 1px 4px rgba(245,158,11,0.25)}
+.ps-reset{width:24px;height:24px;border:none;background:rgba(0,0,0,0.05);border-radius:50%;cursor:pointer;color:rgba(0,0,0,0.35);font-size:12px;display:grid;place-items:center;transition:all .12s}
+.ps-reset:hover{background:rgba(0,0,0,0.1);color:rgba(0,0,0,0.5)}
+
+.pomo-btn{width:24px;height:24px;border:none;background:transparent;border-radius:4px;cursor:pointer;font-size:14px;display:grid;place-items:center;transition:all .12s;color:rgba(0,0,0,0.4)}
+.pomo-btn:hover{background:rgba(0,0,0,0.08)}
+.pomo-btn.ready{color:#ef4444}
+.pomo-btn.active{background:rgba(239,68,68,0.1);color:#ef4444;animation:btnPulse 1.5s ease-in-out infinite}
+@keyframes btnPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.25)}50%{box-shadow:0 0 0 5px rgba(239,68,68,0)}}
+
+/* Focus button */
+.focus-btn{width:24px;height:24px;border:none;background:transparent;border-radius:4px;cursor:pointer;font-size:14px;display:grid;place-items:center;transition:all .12s;color:rgba(0,0,0,0.4)}
+.focus-btn:hover{background:rgba(0,0,0,0.08)}
+.focus-btn.on{color:#8b5cf6}
+
+/* Focus time in bar (shown only in focus mode when pomo open) */
+.focus-time{display:none;font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;font-family:"Sora","Microsoft YaHei","Segoe UI",sans-serif;white-space:nowrap;line-height:1;transition:color .3s}
+.focus-time.work{color:#ef4444}
+.focus-time.break{color:#10b981}
+
+/* ===== Focus mode: clean view ===== */
+body.focus .win{border-left-width:0}
+body.focus .dot,
+body.focus .status-text,
+body.focus #btnFlow,
+body.focus #btnPin,
+body.focus #btnFold,
+body.focus #btnPomo{display:none !important}
+body.focus .pomo-strip{display:none !important}
+body.focus .c-divider,
+body.focus .c-title,
+body.focus .c-time{display:none}
+body.focus .content.hide{display:flex !important}
+body.focus .bar-r{gap:6px;align-items:center}
+body.focus .bar-title{font-size:14px;font-weight:700;display:block !important}
+body.focus .c-body{font-size:12.5px;color:rgba(0,0,0,0.65);padding:10px 14px 14px;border-top:1px solid rgba(0,0,0,0.06);margin:0 10px}
+body.focus .focus-time{align-self:center}
+body.focus .focus-btn{align-self:center}
+/* Show focus-time on bar when pomo panel is opened */
+body.focus.pomo-active .focus-time{display:inline}
+
+/* ===== Pomo Config Row ===== */
+.ps-config{flex-shrink:0;height:0;overflow:hidden;display:flex;align-items:center;gap:8px;padding:0 10px;border-top:0px solid rgba(0,0,0,0.04);transition:height .2s,padding .2s,border-top-width .2s}
+.pomo-strip.open.config .ps-config{height:34px;padding:4px 10px;border-top-width:1px}
+.ps-cfg-item{display:flex;align-items:center;gap:3px;font-size:10px;color:rgba(0,0,0,0.4)}
+.ps-cfg-item input{width:36px;height:22px;border:1px solid rgba(0,0,0,0.12);border-radius:4px;text-align:center;font-size:11px;font-weight:600;background:rgba(255,255,255,0.6);outline:none;font-family:inherit;transition:border .15s}
+.ps-cfg-item input:focus{border-color:rgba(239,68,68,0.4)}
+.ps-cfg-save{height:22px;padding:0 8px;border:none;background:#ef4444;color:#fff;border-radius:4px;font-size:10px;cursor:pointer;font-weight:600;transition:background .12s}
+.ps-cfg-save:hover{background:#dc2626}
+.ps-gear{width:22px;height:22px;border:none;background:rgba(0,0,0,0.04);border-radius:50%;cursor:pointer;color:rgba(0,0,0,0.3);font-size:11px;display:grid;place-items:center;transition:all .12s}
+.ps-gear:hover{background:rgba(0,0,0,0.1);color:rgba(0,0,0,0.5)}
+.ps-gear.on{background:rgba(239,68,68,0.1);color:#ef4444}
+
+/* ===== Resize Zones ===== */
+.rz-b{position:absolute;left:10px;right:10px;bottom:2px;height:7px;cursor:s-resize;z-index:10}
+.rz-r{position:absolute;right:2px;top:10px;bottom:10px;width:7px;cursor:e-resize;z-index:10}
+.rz-br{position:absolute;right:2px;bottom:2px;width:14px;height:14px;cursor:se-resize;z-index:10}
+
+/* ===== Color themes ===== */
 [data-color="yellow"] .win{background:linear-gradient(160deg,#fffbeb,#fef3c7);border-left:3px solid #eab308}
 [data-color="pink"] .win{background:linear-gradient(160deg,#fdf2f8,#fce7f3);border-left:3px solid #ec4899}
 [data-color="blue"] .win{background:linear-gradient(160deg,#eff6ff,#dbeafe);border-left:3px solid #3b82f6}
 [data-color="green"] .win{background:linear-gradient(160deg,#ecfdf5,#d1fae5);border-left:3px solid #10b981}
 [data-color="purple"] .win{background:linear-gradient(160deg,#f5f3ff,#ede9fe);border-left:3px solid #8b5cf6}
 [data-color=""] .win,body:not([data-color]) .win{background:linear-gradient(160deg,#fff,#f5f5f7);border-left:3px solid #d0d0d5}
+
 @media (prefers-color-scheme:dark){
   [data-color="yellow"] .win{background:linear-gradient(160deg,#3d3520,#4a3a15)}
   [data-color="pink"] .win{background:linear-gradient(160deg,#3d2030,#4a1a30)}
@@ -57,10 +151,35 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;font-size
   .btn{color:rgba(255,255,255,0.4)}
   .btn:hover{background:rgba(255,255,255,0.1)}
   .flow{background:rgba(255,255,255,0.06)}
+  .pomo-strip{border-top-color:rgba(255,255,255,0.06)}
+  .ps-ring-wrap .ps-ring-bg{stroke:rgba(255,255,255,0.06)}
+  .ps-ring-wrap .ps-ring-fg{stroke:rgba(255,255,255,0.08)}
+  .ps-ring-min{color:rgba(255,255,255,0.3)}
+  .ps-sec{color:rgba(255,255,255,0.3)}
+  .ps-stats{color:rgba(255,255,255,0.3)}
+  .ps-stats b{color:rgba(255,255,255,0.45)}
+  .ps-reset{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3)}
+  .ps-reset:hover{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.45)}
+  .pomo-btn{color:rgba(255,255,255,0.4)}
+  .pomo-btn:hover{background:rgba(255,255,255,0.1)}
+  .ps-config{border-top-color:rgba(255,255,255,0.04)}
+  .ps-cfg-item{color:rgba(255,255,255,0.3)}
+  .ps-cfg-item input{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1);color:#fff}
+  .ps-gear{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.25)}
+  .ps-gear:hover{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.4)}
+  .focus-btn{color:rgba(255,255,255,0.4)}
+  .focus-btn:hover{background:rgba(255,255,255,0.1)}
+  body.focus .c-body{color:rgba(255,255,255,0.65);border-top-color:rgba(255,255,255,0.06)}
+  .focus-time.work{color:#ef4444}
+  .focus-time.break{color:#10b981}
 }
 </style>
 </head>
 <body data-color="">
+<div class="rz rz-r" id="rzR"></div>
+<div class="rz rz-b" id="rzB"></div>
+<div class="rz rz-br" id="rzBR"></div>
+
 <div class="win" id="win">
   <div class="bar" id="bar">
     <div class="bar-l" id="dragZone">
@@ -69,11 +188,42 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;font-size
       <span class="bar-title" id="barTitle">无标题</span>
     </div>
     <div class="bar-r">
-      <span class="pomo-display" id="pomoDisplay" style="display:none">25:00</span>
+      <span class="focus-time" id="barFocusTime">25:00</span>
       <button class="pomo-btn" id="btnPomo" title="番茄钟">&#x1F345;</button>
       <button class="btn flow" id="btnFlow" style="display:none">开始</button>
+      <button class="focus-btn" id="btnFocus" title="专注模式">&#x1F441;</button>
       <button class="btn" id="btnPin" title="固定">&#x1F4CC;</button>
       <button class="btn" id="btnFold" title="展开">&#x25B2;</button>
+    </div>
+  </div>
+  <div class="pomo-strip" id="pomoStrip">
+    <div class="ps-row">
+      <div class="ps-ring-wrap" id="psRingWrap">
+        <svg class="ps-ring-svg" viewBox="0 0 36 36">
+          <circle class="ps-ring-bg" cx="18" cy="18" r="15"/>
+          <circle class="ps-ring-fg" id="psRing" cx="18" cy="18" r="15"
+            stroke-dasharray="94.25" stroke-dashoffset="0"/>
+        </svg>
+        <span class="ps-ring-min" id="psRingMin">25</span>
+      </div>
+      <div class="ps-info">
+        <span class="ps-label" id="psLabel">专注</span>
+        <div class="ps-stats">
+          完成 <b id="psSessions">0</b> 次 · 共 <b id="psTotalMin">0</b> 分
+        </div>
+      </div>
+      <div class="ps-ctrls">
+        <span class="ps-sec" id="psSec">00</span>
+        <button class="ps-play" id="psPlay" title="开始">&#x25B6;</button>
+        <button class="ps-reset" id="psReset" title="重置">&#x21BA;</button>
+        <button class="ps-gear" id="psGear" title="设置时长">&#x2699;</button>
+      </div>
+    </div>
+    <div class="ps-config" id="psConfig">
+      <div class="ps-cfg-item">专注 <input id="cfgWorkMin" type="number" value="25" min="1" max="120"> 分</div>
+      <div class="ps-cfg-item">休息 <input id="cfgBreakMin" type="number" value="5" min="1" max="60"> 分</div>
+      <div class="ps-cfg-item">轮次 <input id="cfgCycles" type="number" value="1" min="1" max="99"> 轮</div>
+      <button class="ps-cfg-save" id="cfgSave">应用</button>
     </div>
   </div>
   <div class="content hide" id="content">
@@ -85,15 +235,35 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;font-size
 </div>
 
 <script>
-let D = null; // current data
+let D = null;
 let pinned = false;
 let collapsed = true;
+
+// ===== Pomodoro State =====
+const PS_CIRC = 2 * Math.PI * 15;
+let workSec = 25 * 60, breakSec = 5 * 60, totalCycles = 1;
+
+let pomo = {
+  state: 'idle', mode: 'work', total: workSec,
+  elapsed: 0, sessions: 0, totalMin: 0,
+  round: 0, raf: null, startTs: 0,
+};
 
 // ===== Init =====
 (async () => {
   D = await window.stickyAPI.getData();
-  if (D) render(D);
-  window.stickyAPI.onUpdate(d => { D = d; render(d); });
+  if (D) {
+    pomo.sessions = D._pomoSessions || 0;
+    pomo.totalMin = D._pomoTotalMin || 0;
+    render(D);
+  }
+  window.stickyAPI.onUpdate(d => {
+    D = d;
+    pomo.sessions = d._pomoSessions || 0;
+    pomo.totalMin = d._pomoTotalMin || 0;
+    render(d);
+    updatePomoStatsDom();
+  });
   if (window.stickyAPI.onContextCommand) {
     window.stickyAPI.onContextCommand((command) => {
       if (!D || !command) return;
@@ -109,28 +279,19 @@ let collapsed = true;
   }
 })();
 
-// ===== Render =====
 function render(d) {
   const st = d._sourceCol || d._stickyStatus || 'todo';
   document.body.dataset.color = d.noteColor || '';
-  
-  const dot = document.getElementById('dot');
-  dot.className = 'dot ' + st;
-  
-  const statusMap = { todo: '待办', inProgress: '进行中', done: '已完成' };
-  const statusText = document.getElementById('statusText');
-  statusText.textContent = statusMap[st] || '待办';
-
+  document.getElementById('dot').className = 'dot ' + st;
+  const sm = { todo: '待办', inProgress: '进行中', done: '已完成' };
+  document.getElementById('statusText').textContent = sm[st] || '待办';
   const title = d.title || '无标题';
   document.getElementById('barTitle').textContent = title;
   document.getElementById('cTitle').textContent = title;
   document.getElementById('cBody').textContent = d.desc || '';
   document.getElementById('cTime').textContent = d.time || '';
-
   setCollapsed(d._collapsed !== false);
   setPinned(!!d._pinned);
-
-  // Flow button
   const fb = document.getElementById('btnFlow');
   if (st === 'done') { fb.style.display = 'none'; }
   else {
@@ -138,45 +299,28 @@ function render(d) {
     fb.textContent = st === 'todo' ? '开始' : '完成';
     fb.style.setProperty('--fc', st === 'todo' ? '#f59e0b' : '#3b82f6');
   }
+  updatePomoStatsDom();
 }
 
 // ===== Collapse =====
 function setCollapsed(c) {
+  const changed = collapsed !== c;
   collapsed = c;
   const ct = document.getElementById('content');
   const btn = document.getElementById('btnFold');
-  const barTitle = document.getElementById('barTitle');
-  const statusText = document.getElementById('statusText');
-
+  const bt = document.getElementById('barTitle');
+  const st = document.getElementById('statusText');
   if (c) {
     ct.classList.add('hide');
-    btn.textContent = '\u25BC';
-    btn.title = '展开';
-    barTitle.style.display = 'block';
-    statusText.style.display = 'block';
-  }
-  else {
+    btn.textContent = '\u25BC'; btn.title = '展开';
+    bt.style.display = 'block'; st.style.display = 'block';
+  } else {
     ct.classList.remove('hide');
-    btn.textContent = '\u25B2';
-    btn.title = '折叠';
-    barTitle.style.display = 'none';
-    statusText.style.display = 'none';
+    btn.textContent = '\u25B2'; btn.title = '折叠';
+    bt.style.display = 'none'; st.style.display = 'none';
   }
-
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      const barH = 34;
-      const pad = 20;
-      let newH = barH + pad;
-      if (!collapsed) {
-        const content = document.getElementById('content');
-        newH = barH + content.scrollHeight + pad;
-      }
-      window.stickyAPI.resize(newH);
-    });
-  });
+  if (changed) scheduleResize();
 }
-
 document.getElementById('btnFold').onclick = e => {
   e.stopPropagation();
   setCollapsed(!collapsed);
@@ -191,7 +335,6 @@ function setPinned(v) {
   if (v) { btn.classList.add('on'); btn.title = '取消固定'; dz.classList.add('pinned'); }
   else { btn.classList.remove('on'); btn.title = '固定'; dz.classList.remove('pinned'); }
 }
-
 document.getElementById('btnPin').onclick = e => {
   e.stopPropagation();
   setPinned(!pinned);
@@ -205,23 +348,40 @@ document.getElementById('btnFlow').onclick = e => {
   if (st !== 'done') window.stickyAPI.changeStatus('next');
 };
 
-// ===== Drag =====
+// ===== Drag: renderer only signals start/stop; main polls cursor directly =====
 (() => {
-  let dragging = false, sx = 0, sy = 0;
+  let dragging = false;
   document.getElementById('dragZone').addEventListener('mousedown', e => {
-    if (e.button !== 0 || pinned || e.target.closest('.btn')) return;
-    dragging = true; sx = e.screenX; sy = e.screenY;
+    if (e.button !== 0 || pinned) return;
+    dragging = true;
+    window.stickyAPI.dragInit(e.screenX, e.screenY);
     e.preventDefault();
   });
-  document.addEventListener('mousemove', e => {
-    if (!dragging || e.buttons !== 1) { dragging = false; return; }
-    const dx = e.screenX - sx, dy = e.screenY - sy;
-    if (dx !== 0 || dy !== 0) {
-      sx = e.screenX; sy = e.screenY;
-      window.stickyAPI.dragMove(dx, dy);
-    }
+  window.addEventListener('mousemove', e => {
+    if (dragging && e.buttons !== 1) { dragging = false; window.stickyAPI.dragEnd(); }
   });
-  document.addEventListener('mouseup', () => dragging = false);
+  window.addEventListener('mouseup', () => {
+    if (dragging) { dragging = false; window.stickyAPI.dragEnd(); }
+  });
+})();
+
+// ===== Resize: renderer only signals start/stop; main polls cursor directly =====
+(() => {
+  let dir = null;
+  function start(d, e) {
+    dir = d;
+    window.stickyAPI.resizeInit(e.screenX, e.screenY, d);
+    e.preventDefault(); e.stopPropagation();
+  }
+  document.getElementById('rzR').addEventListener('mousedown', e => { if (e.button === 0) start('r', e); });
+  document.getElementById('rzB').addEventListener('mousedown', e => { if (e.button === 0) start('b', e); });
+  document.getElementById('rzBR').addEventListener('mousedown', e => { if (e.button === 0) start('br', e); });
+  window.addEventListener('mousemove', e => {
+    if (dir && e.buttons !== 1) { window.stickyAPI.resizeEnd(); dir = null; }
+  });
+  window.addEventListener('mouseup', () => {
+    if (dir) { window.stickyAPI.resizeEnd(); dir = null; }
+  });
 })();
 
 document.addEventListener('contextmenu', e => {
@@ -230,71 +390,313 @@ document.addEventListener('contextmenu', e => {
   window.stickyAPI.showContextMenu({ x: Math.round(e.x), y: Math.round(e.y) });
 });
 
-// ===== Pomodoro =====
-let pomoRunning = false;
-let pomoSeconds = 25 * 60;
-let pomoInterval = null;
-const POMO_DURATION = 25 * 60; // 25 min
-const POMO_BREAK = 5 * 60;     // 5 min
-
-function updatePomoDisplay() {
-  const m = Math.floor(pomoSeconds / 60);
-  const s = pomoSeconds % 60;
-  document.getElementById('pomoDisplay').textContent =
-    `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+function scheduleResize() {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const barH = 34;
+      let extraH = 0;
+      const strip = document.getElementById('pomoStrip');
+      if (strip.classList.contains('open')) {
+        extraH += 53;
+        if (strip.classList.contains('config')) extraH += 35;
+      }
+      // Show content when not collapsed OR in focus mode
+      if (!collapsed || document.body.classList.contains('focus')) {
+        extraH += document.getElementById('content').scrollHeight;
+      }
+      // 20 = body padding, 1 = rounding buffer
+      window.stickyAPI.resize(barH + extraH + 20 + 1);
+    });
+  });
 }
 
-function startPomo() {
-  pomoRunning = true;
-  pomoSeconds = POMO_DURATION;
-  document.getElementById('pomoDisplay').style.display = 'inline';
-  document.getElementById('pomoDisplay').classList.remove('done');
-  document.getElementById('btnPomo').classList.add('active');
-  document.getElementById('pomoDisplay').style.color = '#ef4444';
-  updatePomoDisplay();
+// ==========================================
+// ===== Pomodoro ===========================
+// ==========================================
 
-  pomoInterval = setInterval(() => {
-    pomoSeconds--;
-    if (pomoSeconds <= 0) {
-      clearInterval(pomoInterval);
-      pomoInterval = null;
-      pomoRunning = false;
-      document.getElementById('btnPomo').classList.remove('active');
-      document.getElementById('pomoDisplay').classList.add('done');
-      document.getElementById('pomoDisplay').style.color = '#10b981';
-      document.getElementById('pomoDisplay').textContent = '完成!';
+const psRingWrap = document.getElementById('psRingWrap');
+const psRing = document.getElementById('psRing');
+const psRingMin = document.getElementById('psRingMin');
+const barFocusTime = document.getElementById('barFocusTime');
+const psSec = document.getElementById('psSec');
+const psLabel = document.getElementById('psLabel');
+const psPlay = document.getElementById('psPlay');
+const psStrip = document.getElementById('pomoStrip');
+const btnPomo = document.getElementById('btnPomo');
 
-      // Notify kanban card to add 25min elapsed
-      if (D && D.id) {
-        window.stickyAPI.addPomoTime(D.id, POMO_DURATION * 1000);
-      }
+function fmtPS(totalSec) {
+  return { m: String(Math.floor(totalSec / 60)), s: String(totalSec % 60).padStart(2, '0') };
+}
 
-      // 5s then show break
+// rAF ring anim — only when state === 'running'
+function startRingAnim() {
+  if (pomo.raf) return;
+  pomo.startTs = performance.now();
+  function tick() {
+    if (pomo.state !== 'running') { pomo.raf = null; return; }
+    const cur = pomo.elapsed + (performance.now() - pomo.startTs);
+    const totalMs = pomo.total * 1000;
+    const progress = Math.min(cur / totalMs, 1);
+    const remain = Math.max(0, Math.ceil((totalMs - cur) / 1000));
+    const { m, s } = fmtPS(remain);
+
+    psRing.style.strokeDashoffset = PS_CIRC * (1 - progress);
+    psRingMin.textContent = m;
+    psSec.textContent = s;
+    barFocusTime.textContent = m + ':' + s;
+    barFocusTime.className = 'focus-time ' + (pomo.mode === 'break' ? 'break' : 'work');
+
+    if (cur >= totalMs) { pomo.raf = null; onPomoEnd(); return; }
+    pomo.raf = requestAnimationFrame(tick);
+  }
+  pomo.raf = requestAnimationFrame(tick);
+}
+
+function stopRingAnim() {
+  if (pomo.raf) { cancelAnimationFrame(pomo.raf); pomo.raf = null; }
+  pomo.elapsed += performance.now() - pomo.startTs;
+}
+
+// Update display from state (for static render: idle / paused)
+function setPomoStatic() {
+  const remain = Math.max(0, Math.ceil((pomo.total * 1000 - pomo.elapsed) / 1000));
+  const { m, s } = fmtPS(remain);
+  psRingMin.textContent = m;
+  psSec.textContent = s;
+  barFocusTime.textContent = m + ':' + s;
+  barFocusTime.className = 'focus-time ' + (pomo.mode === 'break' ? 'break' : 'work');
+  const progress = Math.min(pomo.elapsed / (pomo.total * 1000), 1);
+  psRing.style.strokeDashoffset = PS_CIRC * (1 - progress);
+}
+
+// Ring wrap classes:
+// idle (panel open, not started): no class
+// active+running: .active on ringWrap, anim via rAF
+// active+paused: .active on ringWrap, static ring
+// break: .break
+
+function updateRingState() {
+  const wrap = psRingWrap;
+  // reset
+  wrap.classList.remove('active', 'break');
+  if (pomo.state === 'idle') {
+    // stays pale (no .active)
+  } else {
+    wrap.classList.add('active');
+    if (pomo.mode === 'break') wrap.classList.add('break');
+  }
+  psLabel.textContent = pomo.mode === 'work' ? '专注' : '休息';
+  psLabel.classList.toggle('break', pomo.mode === 'break');
+}
+
+function updatePomoStatsDom() {
+  document.getElementById('psSessions').textContent = pomo.sessions;
+  document.getElementById('psTotalMin').textContent = pomo.totalMin;
+}
+
+function updatePomoBtn() {
+  // Three states: idle=gray / panel-open=ready(red) / running=active(red+pulse)
+  btnPomo.classList.remove('ready', 'active');
+  if (pomo.state === 'running') {
+    btnPomo.classList.add('active');
+    psPlay.innerHTML = '&#x23F8;'; psPlay.title = '暂停'; psPlay.classList.remove('paused');
+  } else if (pomo.state === 'paused' || pomo.state === 'idle') {
+    if (psStrip.classList.contains('open')) btnPomo.classList.add('ready');
+    if (pomo.state === 'paused') {
+      psPlay.innerHTML = '&#x25B6;'; psPlay.title = '继续'; psPlay.classList.add('paused');
+    } else {
+      psPlay.innerHTML = '&#x25B6;'; psPlay.title = '开始'; psPlay.classList.remove('paused');
+    }
+  }
+}
+
+function openPomo() {
+  if (pomo.state === 'idle') { pomo.total = workSec; pomo.elapsed = 0; }
+  psStrip.classList.add('open');
+  document.body.classList.add('pomo-active');
+  updateRingState();
+  setPomoStatic();
+  updatePomoStatsDom();
+  updatePomoBtn();
+  scheduleResize();
+}
+
+function closePomo() {
+  if (pomo.state === 'running') return;
+  psStrip.classList.remove('open', 'config');
+  document.body.classList.remove('pomo-active');
+  psRingWrap.classList.remove('active', 'break');
+  btnPomo.classList.remove('ready', 'active');
+  document.getElementById('psGear').classList.remove('on');
+  scheduleResize();
+}
+
+function startPomoTimer() {
+  if (pomo.state === 'idle') {
+    pomo.mode = 'work'; pomo.total = workSec; pomo.elapsed = 0;
+    pomo.round = 1;
+  }
+  pomo.state = 'running';
+  updateRingState();
+  updatePomoBtn();
+  startRingAnim();
+}
+
+function onPomoEnd() {
+  stopRingAnim();
+  pomo.elapsed = 0;
+
+  if (pomo.mode === 'work') {
+    pomo.sessions++; pomo.totalMin += Math.floor(workSec / 60);
+    updatePomoStatsDom();
+    savePomoStats();
+    if (D && D.id) window.stickyAPI.addPomoTime(D.id, workSec * 1000);
+
+    // Check if all rounds complete
+    if (pomo.round >= totalCycles) {
+      // All rounds done
+      psRingMin.textContent = '✓'; psSec.textContent = '';
+      psRing.style.strokeDashoffset = '0';
+      psRingWrap.classList.add('break');
+      psLabel.textContent = '完成!'; psLabel.classList.add('break');
+      barFocusTime.textContent = '✓'; barFocusTime.className = 'focus-time break';
+
       setTimeout(() => {
-        document.getElementById('pomoDisplay').textContent = '休息';
-        setTimeout(() => {
-          document.getElementById('pomoDisplay').style.display = 'none';
-          document.getElementById('pomoDisplay').classList.remove('done');
-        }, 3000);
+        pomo.mode = 'work'; pomo.total = workSec;
+        pomo.state = 'idle'; pomo.round = 0;
+        updateRingState();
+        setPomoStatic();
+        updatePomoBtn();
       }, 2000);
     } else {
-      updatePomoDisplay();
+      // Flash done then break
+      psRingMin.textContent = '✓'; psSec.textContent = '';
+      psRing.style.strokeDashoffset = '0';
+      psRingWrap.classList.add('break');
+      psLabel.textContent = '完成!'; psLabel.classList.add('break');
+      barFocusTime.textContent = '✓'; barFocusTime.className = 'focus-time break';
+
+      setTimeout(() => {
+        if (pomo.state !== 'running') return;
+        pomo.mode = 'break'; pomo.total = breakSec; pomo.elapsed = 0;
+        updateRingState();
+        setPomoStatic();
+        startRingAnim();
+      }, 2000);
     }
-  }, 1000);
+  } else {
+    // Break ended — next round
+    pomo.round++;
+    if (pomo.round > totalCycles) {
+      pomo.mode = 'work'; pomo.total = workSec;
+      pomo.state = 'idle'; pomo.round = 0;
+      updateRingState();
+      setPomoStatic();
+      updatePomoBtn();
+    } else {
+      pomo.mode = 'work'; pomo.total = workSec; pomo.elapsed = 0;
+      updateRingState();
+      setPomoStatic();
+      startRingAnim();
+    }
+  }
 }
 
-function stopPomo() {
-  if (pomoInterval) { clearInterval(pomoInterval); pomoInterval = null; }
-  pomoRunning = false;
-  document.getElementById('btnPomo').classList.remove('active');
-  document.getElementById('pomoDisplay').style.display = 'none';
-  document.getElementById('pomoDisplay').classList.remove('done');
+function pausePomo() {
+  stopRingAnim();
+  pomo.state = 'paused';
+  updateRingState();
+  setPomoStatic();
+  updatePomoBtn();
 }
 
-document.getElementById('btnPomo').onclick = e => {
+function resumePomo() {
+  pomo.state = 'running';
+  updateRingState();
+  updatePomoBtn();
+  startRingAnim();
+}
+
+function resetPomo() {
+  stopRingAnim();
+  pomo.state = 'idle'; pomo.mode = 'work';
+  pomo.total = workSec; pomo.elapsed = 0; pomo.round = 0;
+  updateRingState();
+  setPomoStatic();
+  updatePomoBtn();
+}
+
+function savePomoStats() {
+  if (!D || !window.stickyAPI.savePomoStats) return;
+  window.stickyAPI.savePomoStats(D.id, pomo.sessions, pomo.totalMin);
+}
+
+btnPomo.onclick = e => {
   e.stopPropagation();
-  if (pomoRunning) { stopPomo(); }
-  else { startPomo(); }
+  psStrip.classList.contains('open') ? closePomo() : openPomo();
+};
+
+psPlay.onclick = e => {
+  e.stopPropagation();
+  if (pomo.state === 'idle') startPomoTimer();
+  else if (pomo.state === 'paused') resumePomo();
+  else pausePomo();
+};
+
+document.getElementById('psReset').onclick = e => {
+  e.stopPropagation();
+  resetPomo();
+};
+
+// ===== Gear: duration config =====
+function applyConfig() {
+  const wm = parseInt(document.getElementById('cfgWorkMin').value) || 25;
+  const bm = parseInt(document.getElementById('cfgBreakMin').value) || 5;
+  workSec = Math.max(1, Math.min(120, wm)) * 60;
+  breakSec = Math.max(1, Math.min(60, bm)) * 60;
+  totalCycles = Math.max(1, Math.min(99, parseInt(document.getElementById('cfgCycles').value) || 1));
+  // Reset timer immediately
+  resetPomo();
+  // Close config row
+  psStrip.classList.remove('config');
+  document.getElementById('psGear').classList.remove('on');
+  scheduleResize();
+}
+
+document.getElementById('psGear').onclick = e => {
+  e.stopPropagation();
+  if (!psStrip.classList.contains('open')) return;
+  const toggling = !psStrip.classList.contains('config');
+  psStrip.classList.toggle('config', toggling);
+  document.getElementById('psGear').classList.toggle('on', toggling);
+  document.getElementById('cfgWorkMin').value = workSec / 60;
+  document.getElementById('cfgBreakMin').value = breakSec / 60;
+  document.getElementById('cfgCycles').value = totalCycles;
+  scheduleResize();
+};
+
+document.getElementById('cfgSave').onclick = e => {
+  e.stopPropagation();
+  applyConfig();
+};
+
+// Allow Enter key on inputs
+['cfgWorkMin', 'cfgBreakMin', 'cfgCycles'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    if (e.key === 'Enter') applyConfig();
+  });
+});
+
+// ===== Focus mode toggle =====
+let focused = false;
+document.getElementById('btnFocus').onclick = e => {
+  e.stopPropagation();
+  focused = !focused;
+  document.body.classList.toggle('focus', focused);
+  // Sync pomo-active class
+  document.body.classList.toggle('pomo-active', psStrip.classList.contains('open'));
+  document.getElementById('btnFocus').classList.toggle('on', focused);
+  scheduleResize();
 };
 </script>
 </body>
