@@ -14,18 +14,49 @@
 - **系统托盘**：关闭窗口时选择最小化到托盘或退出
 - **深色模式**：自动适配系统主题
 
-## 开发
+## 快速开始（推荐）
+
+### 方式一：直接下载运行
+
+1. 打开 [Releases](https://github.com/asuka091241-ai/-/releases) 页面
+2. 下载最新的 `Kanota.exe`（便携版，无需安装）
+3. 双击运行即可
+
+### 方式二：从源码运行
+
+> 需要电脑已安装 [Node.js](https://nodejs.org)（18+）
 
 ```bash
-# 安装依赖
+# 1. 克隆仓库
+git clone https://github.com/asuka091241-ai/-.git
+cd -
+
+# 2. 安装依赖
 npm install
 
-# 启动开发模式
+# 3. 运行
 npm start
-
-# 打包
-npm run build
 ```
+
+### 方式三：自己打包
+
+```bash
+npm install
+npm run build
+# 输出在 release/win-unpacked/Kanota.exe
+```
+
+## 使用说明
+
+| 操作 | 方式 |
+|------|------|
+| 新建任务 | 看板页面顶部输入框 |
+| 拖出便签 | 在看板卡片上按住鼠标拖出窗口 |
+| 便签右键 | 右键便签 → 更换颜色 / 从桌面移除 |
+| 卡片右键 | 右键看板卡片 → 打开详情 / 更换颜色 / 删除 |
+| 便签折叠 | 点击便签顶部 ▼ / ▲ |
+| 便签固定 | 点击 📌 按钮固定位置 |
+| 关闭窗口 | 点击 × → 选择最小化到托盘或退出 |
 
 ## 技术栈
 
@@ -37,14 +68,13 @@ npm run build
 ## 项目结构
 
 ```
-kanban-app/
-├── main.js          # Electron 主进程
-├── preload.js       # 看板窗口 preload
+├── main.js           # Electron 主进程
+├── preload.js        # 看板窗口 preload
 ├── preload-sticky.js # 便签窗口 preload
-├── index.html       # 看板主界面
-├── sticky.html      # 桌面便签界面
-├── icon.svg         # 应用图标源文件
-├── build-icon.js    # 图标生成脚本
+├── index.html        # 看板主界面
+├── sticky.html       # 桌面便签界面
+├── icon.svg          # 图标源文件
+├── build-icon.js     # 图标生成脚本
 └── package.json
 ```
 
