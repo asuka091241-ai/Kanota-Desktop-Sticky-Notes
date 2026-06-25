@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kanota</title>
+<title>Kanota — CaffYooO</title>
 <style>
 /* ===== Theme Variables ===== */
 :root, [data-theme="light"] {
@@ -168,18 +168,48 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;backgroun
 .drag-hint .dh-icon{font-size:18px}
 
 /* Task Creation Panel (bottom) */
-.task-create{flex-shrink:0;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.task-create{flex-shrink:0;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .task-create .tc-title{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg0);color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
 .task-create .tc-title:focus{border-color:var(--accent)}
 .task-create .tc-title::placeholder{color:var(--text3);font-size:13px}
-.task-create .tc-body{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg0);color:var(--text);font-size:13px;font-family:inherit;outline:none;resize:none;min-height:80px;transition:border-color .15s;line-height:1.6}
+.task-create .tc-body{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg0);color:var(--text);font-size:13px;font-family:inherit;outline:none;resize:none;min-height:64px;transition:border-color .15s;line-height:1.6}
 .task-create .tc-body:focus{border-color:var(--accent)}
 .task-create .tc-body::placeholder{color:var(--text3)}
-.task-create .tc-row{display:flex;align-items:center;gap:12px}
-.task-create .tc-select{padding:8px 12px;border:1px solid var(--border);border-radius:7px;background:var(--bg0);color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;outline:none;transition:border-color .15s}
-.task-create .tc-select:focus{border-color:var(--accent)}
+.task-create .tc-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.task-create .tc-select{padding:8px 12px 8px 4px;border:none;background:transparent;color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;outline:none;min-width:80px}
+.tc-select:focus{outline:none}
+.tc-status-wrap{display:flex;align-items:center;border:1px solid var(--border);border-radius:7px;background:var(--bg0);transition:border-color .15s}
+.tc-status-wrap:focus-within{border-color:var(--accent)}
+.tc-status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-left:8px}
+.tc-status-dot.todo{background:var(--col-todo)}
+.tc-status-dot.progress{background:var(--col-progress)}
+.tc-status-dot.done{background:var(--col-done)}
 .task-create .tc-submit{padding:9px 24px;background:var(--accent);color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;transition:all .12s;white-space:nowrap}
 .task-create .tc-submit:hover{opacity:.88}
+.tc-subtasks-row{display:flex;flex-direction:column;gap:6px}
+.tc-due-wrap{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.tc-due-prefix{font-size:12px;font-weight:600;color:var(--text3);flex-shrink:0;white-space:nowrap;transition:color .15s}
+.tc-due-prefix.set{color:var(--accent)}
+.tc-due-pill{display:flex;align-items:center;flex:1;min-width:0;border:1px solid var(--border);border-radius:7px;background:var(--bg0);transition:border-color .15s;overflow:hidden}
+.tc-due-pill:focus-within{border-color:var(--accent)}
+.tc-due-total{flex:0 0 auto;width:150px;padding:7px 10px;font-size:13px;font-weight:700;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;border-right:1px solid var(--border);background:rgba(0,0,0,0.015);line-height:1.4;font-family:"Sora","Microsoft YaHei",sans-serif}
+.tc-due-total.set{color:var(--accent);background:rgba(59,130,246,0.05)}
+.tc-due-seg-area{display:flex;align-items:center;flex:1;min-width:0;justify-content:flex-end;padding:0 4px;gap:0}
+.tc-due-div{font-size:13px;color:var(--border);user-select:none;pointer-events:none;line-height:1;flex-shrink:0;margin:0 4px}
+.tc-due-seg{appearance:none;border:none;background:transparent;color:var(--text3);font-size:14px;font-family:"Sora","Microsoft YaHei",sans-serif;font-weight:700;cursor:pointer;outline:none;text-align:center;padding:8px 18px 8px 4px;min-width:44px;background-image:url("data:image/svg+xml,%3Csvg width='6' height='4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l3 4 3-4' fill='%23bbb'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;transition:color .15s}
+.tc-due-seg.has-value{color:var(--accent)}
+.tc-due-unit{font-size:11px;font-weight:600;color:var(--text3);padding-right:6px;pointer-events:none;letter-spacing:.02em}
+.tc-due-unit:last-of-type{padding-right:8px}
+.tc-due-seg-inp{width:44px;padding:7px 4px;border:none;background:var(--bg0);color:var(--accent);font-size:14px;font-family:"Sora","Microsoft YaHei",sans-serif;font-weight:700;text-align:left;outline:none;border-radius:4px}
+.tc-due-seg-inp:focus{background:rgba(59,130,246,0.06)}
+.tc-subtask-list{display:flex;flex-wrap:wrap;gap:4px}
+.tc-subtask-chip{display:flex;align-items:center;gap:4px;padding:3px 8px;background:var(--accent-light);border-radius:10px;font-size:11px;color:var(--accent);animation:fadeIn .2s ease}
+.tc-subtask-chip-del{width:16px;height:16px;border:none;background:transparent;border-radius:50%;cursor:pointer;font-size:12px;color:var(--accent);opacity:.5;display:grid;place-items:center;transition:all .12s}
+.tc-subtask-chip-del:hover{opacity:1;background:var(--danger);color:#fff}
+.tc-subtask-input{padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--bg0);color:var(--text);font-size:12px;font-family:inherit;outline:none;transition:border-color .15s}
+.tc-subtask-input:focus{border-color:var(--accent)}
+.tc-subtask-add{width:30px;height:30px;border:none;background:var(--bg0);border-radius:7px;cursor:pointer;font-size:15px;color:var(--text3);display:grid;place-items:center;transition:all .12s;flex-shrink:0}
+.tc-subtask-add:hover{background:var(--accent);color:#fff}
 
 /* ===== Stickies ===== */
 .stiky-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
@@ -217,6 +247,29 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;backgroun
 .note-panel input:focus,.note-panel textarea:focus,.note-panel select:focus{border-color:var(--accent)}
 .note-panel .np-actions{display:flex;gap:8px;justify-content:flex-end}
 
+/* ===== Subtasks in Note Panel ===== */
+.subtask-list{display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto;padding-right:2px}
+.subtask-list::-webkit-scrollbar{width:3px}
+.subtask-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.1);border-radius:2px}
+.subtask-item2{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg0);border-radius:6px;font-size:13px;transition:all .12s}
+.subtask-item2:hover{background:var(--bg2)}
+.subtask-item2.done .subtask-text2{text-decoration:line-through;opacity:.45}
+.subtask-item2 input[type="checkbox"]{width:15px;height:15px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
+.subtask-text2{flex:1;word-break:break-word;color:var(--text);font-size:13px;line-height:1.4}
+.subtask-time{font-size:10px;color:var(--text3);flex-shrink:0;font-weight:500;margin-left:4px}
+.subtask-del2{width:22px;height:22px;border:none;background:transparent;border-radius:4px;cursor:pointer;font-size:14px;color:var(--text3);display:grid;place-items:center;flex-shrink:0;transition:all .12s}
+.subtask-del2:hover{background:var(--danger);color:#fff}
+/* Subtask progress on kanban card */
+.card-subtasks{margin-top:6px;display:flex;align-items:center;gap:6px}
+.card-sub-progress{height:3px;background:var(--bg3);border-radius:2px;flex:1;overflow:hidden}
+.card-sub-progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s ease}
+.card-sub-label{font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0}
+/* Due date on card */
+.card-due{font-size:10px;margin-top:4px;display:flex;align-items:center;gap:3px;padding:2px 5px;border-radius:3px;width:fit-content}
+.card-due.overdue{background:rgba(239,68,68,0.1);color:var(--danger)}
+.card-due.today{background:rgba(245,158,11,0.1);color:#f59e0b}
+.card-due.upcoming{background:rgba(59,130,246,0.08);color:#3b82f6}
+
 /* ===== Trash ===== */
 .trash-list{display:flex;flex-direction:column;gap:8px}
 .trash-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--card-bg);border:1px solid var(--border);border-radius:10px}
@@ -228,11 +281,29 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;backgroun
 .trash-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 .trash-btn.danger:hover{background:var(--danger);border-color:var(--danger)}
 
+/* ===== Stats ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stats-card{background:var(--dash-card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;transition:all .15s}
+.stats-card:hover{box-shadow:var(--shadow)}
+.stats-card.wide{grid-column:1 / -1}
+.stats-label{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.stats-row{display:flex;justify-content:space-between;gap:12px}
+.stats-item{text-align:center;flex:1}
+.stats-num{font-size:34px;font-weight:800;line-height:1.1;font-family:"Sora","Microsoft YaHei",sans-serif}
+.stats-sublabel{font-size:12px;color:var(--text2);margin-top:6px}
+.stats-bar{height:6px;background:var(--bg3);border-radius:3px;margin-top:16px;overflow:hidden}
+.stats-bar-fill{height:100%;background:linear-gradient(90deg,var(--col-todo),var(--col-progress),var(--col-done));border-radius:3px;transition:width .4s ease}
+.stats-foot{font-size:12px;color:var(--text2);margin-top:8px}
+
 /* ===== Settings ===== */
 .set-group{margin-bottom:28px}
 .set-group h3{font-size:16px;font-weight:700;margin-bottom:12px}
 .set-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.set-sub{padding-left:20px;border-bottom-style:dashed;border-bottom-color:rgba(0,0,0,0.04)}
+.set-sub label{font-size:13px;color:var(--text2)}
 .set-row label{font-size:14px}
+.set-row+.about-links{padding-top:0;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.set-row+.about-links,.about-links{display:flex;align-items:center;padding:4px 0 12px}
 .set-row sub{color:var(--text2);font-size:12px;display:block}
 .toggle{position:relative;width:44px;height:24px;cursor:pointer}
 .toggle input{display:none}
@@ -299,6 +370,7 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;backgroun
       <div class="side-label">&#x2009;主 菜 单</div>
       <div class="side-item active" data-page="dashboard"><span class="side-ico">&#x25A3;</span> 仪表盘</div>
       <div class="side-item" data-page="kanban"><span class="side-ico">&#x2261;</span> 看板</div>
+      <div class="side-item" data-page="stats"><span class="side-ico">&#x25D4;</span> 统计</div>
       <div class="side-item" data-page="stickies"><span class="side-ico">&#x25C6;</span> 桌面便签</div>
     </div>
     <div class="side-group">
@@ -348,6 +420,60 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;backgroun
       </div>
     </div>
 
+    <!-- ===== Stats ===== -->
+    <div class="page" id="page-stats">
+      <h2 class="h2">数据统计</h2>
+      <p class="sub">任务总量、完成趋势与专注时长概览</p>
+      <div class="stats-grid">
+        <div class="stats-card wide">
+          <div class="stats-label">任务概览</div>
+          <div class="stats-row">
+            <div class="stats-item"><div class="stats-num" id="statTotal" style="color:var(--text)">0</div><div class="stats-sublabel">总任务</div></div>
+            <div class="stats-item"><div class="stats-num" id="statTodo" style="color:var(--col-todo)">0</div><div class="stats-sublabel">待办</div></div>
+            <div class="stats-item"><div class="stats-num" id="statProgress" style="color:var(--col-progress)">0</div><div class="stats-sublabel">进行中</div></div>
+            <div class="stats-item"><div class="stats-num" id="statDone" style="color:var(--col-done)">0</div><div class="stats-sublabel">已完成</div></div>
+          </div>
+          <div class="stats-bar"><div class="stats-bar-fill" id="statBarFill" style="width:0%"></div></div>
+          <div class="stats-foot">完成率 <b id="statRate">0%</b></div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-label">今日完成</div>
+          <div class="stats-num" id="statToday" style="color:var(--col-done)">0</div>
+          <div class="stats-sublabel">个任务</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-label">本周完成</div>
+          <div class="stats-num" id="statWeek" style="color:var(--accent)">0</div>
+          <div class="stats-sublabel">个任务</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-label">桌面便签</div>
+          <div class="stats-num" id="statStickies" style="color:var(--text)">0</div>
+          <div class="stats-sublabel">个浮动窗口</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-label">番茄钟</div>
+          <div class="stats-num" id="statPomo" style="color:var(--col-todo)">0</div>
+          <div class="stats-sublabel">个番茄</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-label">专注时长</div>
+          <div class="stats-num" id="statFocus" style="color:var(--col-progress)">0</div>
+          <div class="stats-sublabel">分钟</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-label">即将到期</div>
+          <div class="stats-num" id="statDueSoon" style="color:#f59e0b">0</div>
+          <div class="stats-sublabel">24小时内</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-label">已过期</div>
+          <div class="stats-num" id="statOverdue" style="color:var(--danger)">0</div>
+          <div class="stats-sublabel">个任务</div>
+        </div>
+      </div>
+    </div>
+
     <!-- ===== Kanban ===== -->
     <div class="page" id="page-kanban">
       <div class="kanban-page">
@@ -375,14 +501,37 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;backgroun
 
         <!-- Task Creation Panel (bottom) -->
         <div class="task-create" id="taskPanel">
-          <input class="tc-title" id="tcTitle" placeholder="标题" maxlength="80" autocomplete="off">
-          <textarea class="tc-body" id="tcBody" placeholder="正文（可选）" rows="3" autocomplete="off"></textarea>
+          <input class="tc-title" id="tcTitle" placeholder="输入任务标题..." maxlength="80" autocomplete="off">
+          <textarea class="tc-body" id="tcBody" placeholder="写点备注（可选）" rows="2" autocomplete="off"></textarea>
+          <div class="tc-subtasks-row">
+            <div class="tc-subtask-list" id="tcSubtaskList"></div>
+            <div style="display:flex;gap:6px">
+              <input class="tc-subtask-input" id="tcSubtaskInput" placeholder="新子任务..." maxlength="100" autocomplete="off" style="flex:1">
+              <button class="tc-subtask-add" id="tcSubtaskAdd">+</button>
+            </div>
+          </div>
           <div class="tc-row">
-            <select class="tc-select" id="tcStatus">
-              <option value="todo">待办</option>
-              <option value="inProgress">进行中</option>
-              <option value="done">已完成</option>
-            </select>
+            <div class="tc-status-wrap">
+              <span class="tc-status-dot" id="tcStatusDot"></span>
+              <select class="tc-select" id="tcStatus">
+                <option value="todo">待办</option>
+                <option value="inProgress">进行中</option>
+                <option value="done">已完成</option>
+              </select>
+            </div>
+            <div class="tc-due-wrap">
+              <span class="tc-due-prefix" id="tcDuePrefix">截止</span>
+              <div class="tc-due-pill">
+                <span class="tc-due-total" id="tcDueTotal">未设置</span>
+                <div class="tc-due-seg-area">
+                  <select class="tc-due-seg" id="tcDueM"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="6">6</option><option value="12">12</option><option value="-1">自定义</option></select><span class="tc-due-unit">月</span><span class="tc-due-div">|</span>
+                  <select class="tc-due-seg" id="tcDueW"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="-1">自定义</option></select><span class="tc-due-unit">周</span><span class="tc-due-div">|</span>
+                  <select class="tc-due-seg" id="tcDueD"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="5">5</option><option value="7">7</option><option value="14">14</option><option value="-1">自定义</option></select><span class="tc-due-unit">天</span><span class="tc-due-div">|</span>
+                  <select class="tc-due-seg" id="tcDueH"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="6">6</option><option value="12">12</option><option value="-1">自定义</option></select><span class="tc-due-unit">时</span><span class="tc-due-div">|</span>
+                  <select class="tc-due-seg" id="tcDueMin"><option value="0">0</option><option value="15">15</option><option value="30">30</option><option value="45">45</option><option value="-1">自定义</option></select><span class="tc-due-unit">分</span>
+                </div>
+              </div>
+            </div>
             <button class="tc-submit" id="tcSubmit">添加任务</button>
           </div>
         </div>
@@ -417,7 +566,7 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;backgroun
           <div class="about-row"><span class="about-key">邮箱</span><span class="about-val"><a href="mailto:13257035176@163.com">13257035176@163.com</a></span></div>
         </div>
         <p class="about-desc">Kanota 是一款轻量级桌面看板便签应用，融合了看板卡片管理与桌面便签两大功能。支持拖拽流转卡片状态、专注模式、番茄钟计时、多主题切换等特性，帮助你在本地高效管理任务与灵感。</p>
-        <p class="about-desc">所有数据存储于本地，完全离线工作。通过 GitHub Release 进行版本更新，你可以随时检查并下载最新版本。</p>
+        <p class="about-desc">所有数据存储于本地，完全离线工作，无需任何网络连接。通过 GitHub Release 进行版本更新，你可以随时检查并下载最新版本。</p>
         <div class="about-update">
           <span class="upd-status" id="aboutUpdStatus" title="点击检查更新">检查更新</span>
           <span style="color:var(--text2);font-size:11px">当前 <span id="aboutCurVer">v1.0.3</span></span>
@@ -435,6 +584,12 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;backgroun
       </div>
       <div class="set-group">
         <h3>行为</h3>
+        <div class="set-row"><div><label>开机自启动</label><sub>系统登录时自动运行 Kanota</sub></div><label class="toggle"><input type="checkbox" id="togAutostart"><span class="slider"></span></label></div>
+        <div class="set-row"><div><label>拖到桌面默认折叠</label><sub>新建便签拖到桌面时自动折叠为标题栏</sub></div><label class="toggle"><input type="checkbox" id="togStickyCollapsed"><span class="slider"></span></label></div>
+        <div class="set-row"><div><label>显示截止时间</label><sub>便签中显示截止时间区域</sub></div><label class="toggle"><input type="checkbox" id="togShowDue"><span class="slider"></span></label></div>
+        <div class="set-row set-sub" id="rowDueFocus" style="display:none"><div><label>专注模式下也显示截止时间</label><sub>专注模式下同样显示截止时间</sub></div><label class="toggle"><input type="checkbox" id="togShowDueFocus"><span class="slider"></span></label></div>
+        <div class="set-row"><div><label>专注模式显示子任务</label><sub>专注模式下显示折叠的子任务区域（左下角箭头展开）</sub></div><label class="toggle"><input type="checkbox" id="togFocusSubtasks"><span class="slider"></span></label></div>
+        <div class="set-row"><div><label>便签显示创建时间</label><sub>桌面便签左下角显示卡片创建时间</sub></div><label class="toggle"><input type="checkbox" id="togStickyShowTime"><span class="slider"></span></label></div>
         <div class="set-row"><div><label>记住关闭选择</label><sub>点击关闭时直接执行上次选择，不再弹窗询问</sub></div><label class="toggle"><input type="checkbox" id="togRememberClose"><span class="slider"></span></label></div>
       </div>
       <div class="set-group">
@@ -467,6 +622,22 @@ body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;backgroun
     <div style="display:flex;gap:12px">
       <div style="flex:1"><label>状态</label><select id="npStatus"><option value="todo">待办</option><option value="inProgress">进行中</option><option value="done">已完成</option></select></div>
       <div style="flex:1"><label>标签色</label><select id="npColor"><option value="">默认</option><option value="yellow">黄色</option><option value="pink">粉色</option><option value="blue">蓝色</option><option value="green">绿色</option><option value="purple">紫色</option></select></div>
+    </div>
+    <div class="np-subtasks-section">
+      <label>子任务</label>
+      <div class="subtask-list" id="npSubtasks"></div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <input class="subtask-input" id="npSubtaskInput" placeholder="添加子任务..." maxlength="100" autocomplete="off" style="flex:1">
+        <button class="stiky-act" id="npAddSubtask" style="flex-shrink:0">+</button>
+      </div>
+    </div>
+    <div>
+      <label>截止日期</label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="date" id="npDueDate" style="flex:1;padding:7px 8px;border:1px solid var(--border);border-radius:7px;background:var(--bg0);color:var(--text);font-size:12px;font-family:inherit;outline:none">
+        <input type="time" id="npDueTime" style="flex:1;padding:7px 8px;border:1px solid var(--border);border-radius:7px;background:var(--bg0);color:var(--text);font-size:12px;font-family:inherit;outline:none">
+        <button class="stiky-act" id="npClearDue" style="white-space:nowrap;flex-shrink:0">清除</button>
+      </div>
     </div>
     <div class="np-actions">
       <button class="stiky-act" onclick="closeNoteModal()">取消</button>
@@ -539,9 +710,83 @@ async function init() {
   bindCtx();
   bindSettings();
   bindNoteOverlay();
+  initNoteOverlayBindings();
   renderAll();
+
+  // Listen for update available (from tray menu check)
+  const updStatus = document.getElementById('updStatus');
+  const sideVer = document.getElementById('sideVersion');
+  const aboutVer = document.getElementById('aboutVersion');
+  const aboutCurVer = document.getElementById('aboutCurVer');
+  const aboutUpd = document.getElementById('aboutUpdStatus');
+
+  function syncUpdateUI(state, version, current) {
+    // Set text/class for sidebar upd status
+    const apply = (el, txt, cls) => { el.textContent = txt; el.className = 'upd-status ' + cls; };
+    if (state === 'checking') {
+      apply(updStatus, '检查中...', 'checking');
+      apply(aboutUpd, '检查中...', 'checking');
+    } else if (state === 'up-to-date') {
+      apply(updStatus, '已是最新版本', 'up-to-date');
+      apply(aboutUpd, '已是最新版本', 'up-to-date');
+      aboutUpd.onclick = doCheckUpdate;
+      aboutUpd.title = '点击检查更新';
+      updStatus.onclick = doCheckUpdate;
+    } else if (state === 'has-update') {
+      apply(updStatus, `有新版本 v${version}`, 'has-update');
+      apply(aboutUpd, `有新版本 v${version}`, 'has-update');
+      updStatus.title = '点击下载更新';
+      aboutUpd.title = '点击下载更新';
+      const doDownload = async () => {
+        apply(updStatus, '下载中...', 'checking');
+        apply(aboutUpd, '下载中...', 'checking');
+        await window.electronAPI.downloadUpdate();
+      };
+      updStatus.onclick = doDownload;
+      aboutUpd.onclick = doDownload;
+    }
+    if (current) {
+      sideVer.textContent = `Kanota v${current}`;
+      aboutVer.textContent = 'v' + current;
+      aboutCurVer.textContent = 'v' + current;
+    }
+  }
+
+  async function doCheckUpdate() {
+    syncUpdateUI('checking');
+    const result = await window.electronAPI.checkUpdate();
+    if (result.upToDate) {
+      syncUpdateUI('up-to-date', '', result.currentVersion);
+    } else if (result.error) {
+      updStatus.textContent = '检查失败，点击重试';
+      updStatus.className = 'upd-status has-update';
+      aboutUpd.textContent = '检查失败，点击重试';
+      aboutUpd.className = 'upd-status has-update';
+      updStatus.onclick = doCheckUpdate;
+      aboutUpd.onclick = doCheckUpdate;
+    } else {
+      syncUpdateUI('has-update', result.latestVersion, result.currentVersion);
+    }
+  }
+
+  updStatus.onclick = doCheckUpdate;
+  aboutUpd.onclick = doCheckUpdate;
+
+  window.electronAPI.onUpdateAvailable(info => {
+    syncUpdateUI('has-update', info.version, info.current);
+  });
+
+  // Show version on load
+  window.electronAPI.checkUpdate().then(r => {
+    sideVer.textContent = `Kanota v${r.currentVersion}`;
+    aboutVer.textContent = 'v' + r.currentVersion;
+    aboutCurVer.textContent = 'v' + r.currentVersion;
+    if (r.upToDate) {
+      syncUpdateUI('up-to-date', '', r.currentVersion);
+    }
+  });
 }
-function renderAll() { renderKanban(); updateDashboard(); updateTrashBadge(); updateTabCounts(); }
+function renderAll() { renderKanban(); updateDashboard(); updateTrashBadge(); updateTabCounts(); updateStats(); }
 async function save() { await window.electronAPI.saveData(data); }
 
 // ===== Titlebar =====
@@ -625,6 +870,7 @@ function bindSidebar() {
       if (p === 'stickies') renderStickies();
       if (p === 'trash') renderTrash();
       if (p === 'dashboard') updateDashboard();
+      if (p === 'stats') updateStats();
       if (p === 'kanban') { renderKanban(); updateTabCounts(); }
     });
   });
@@ -638,6 +884,26 @@ function updateDashboard() {
   document.getElementById('dashTodo').textContent = (data.todo || []).length;
   document.getElementById('dashProgress').textContent = (data.inProgress || []).length;
   document.getElementById('dashDone').textContent = (data.done || []).length;
+}
+async function updateStats() {
+  try {
+    const stats = await window.electronAPI.getStatsData();
+    document.getElementById('statTotal').textContent = stats.todo + stats.inProgress + stats.done;
+    document.getElementById('statTodo').textContent = stats.todo;
+    document.getElementById('statProgress').textContent = stats.inProgress;
+    document.getElementById('statDone').textContent = stats.done;
+    const total = stats.todo + stats.inProgress + stats.done;
+    const rate = total > 0 ? Math.round((stats.done / total) * 100) : 0;
+    document.getElementById('statRate').textContent = rate + '%';
+    document.getElementById('statBarFill').style.width = rate + '%';
+    document.getElementById('statToday').textContent = stats.todayDone;
+    document.getElementById('statWeek').textContent = stats.weekDone;
+    document.getElementById('statStickies').textContent = stats.stickies;
+    document.getElementById('statPomo').textContent = stats.pomoSessions;
+    document.getElementById('statFocus').textContent = stats.pomoTotalMin;
+    document.getElementById('statDueSoon').textContent = stats.dueSoon;
+    document.getElementById('statOverdue').textContent = stats.overdue;
+  } catch (_) {}
 }
 function updateTrashBadge() {
   const b = document.getElementById('badgeTrash');
@@ -667,7 +933,162 @@ function bindCategoryTabs() {
 }
 
 // ===== Task Create Panel =====
+let _tcSubtasks = [];
+
+function renderTcSubtasks() {
+  const list = document.getElementById('tcSubtaskList');
+  list.innerHTML = _tcSubtasks.map((st, i) => `
+    <span class="tc-subtask-chip">
+      ${esc(st.text)}
+      <button class="tc-subtask-chip-del" data-idx="${i}">&times;</button>
+    </span>
+  `).join('');
+  list.querySelectorAll('.tc-subtask-chip-del').forEach(btn => {
+    btn.onclick = () => {
+      _tcSubtasks.splice(parseInt(btn.dataset.idx), 1);
+      renderTcSubtasks();
+    };
+  });
+}
+
+function resetTcSubtasks() {
+  _tcSubtasks = [];
+  renderTcSubtasks();
+  document.getElementById('tcSubtaskInput').value = '';
+}
+
+function getTcDueDate() {
+  const m = parseInt(document.getElementById('tcDueM').value) || 0;
+  const w = parseInt(document.getElementById('tcDueW').value) || 0;
+  const d = parseInt(document.getElementById('tcDueD').value) || 0;
+  const h = parseInt(document.getElementById('tcDueH').value) || 0;
+  const min = parseInt(document.getElementById('tcDueMin').value) || 0;
+  if (m === 0 && w === 0 && d === 0 && h === 0 && min === 0) return null;
+  const now = new Date();
+  const target = new Date(now);
+  target.setMonth(target.getMonth() + m);
+  target.setDate(target.getDate() + w * 7 + d);
+  target.setHours(target.getHours() + h, target.getMinutes() + min, 0, 0);
+  return target.toISOString();
+}
+
+function updateDuePreview() {
+  const m = parseInt(document.getElementById('tcDueM').value) || 0;
+  const w = parseInt(document.getElementById('tcDueW').value) || 0;
+  const d = parseInt(document.getElementById('tcDueD').value) || 0;
+  const h = parseInt(document.getElementById('tcDueH').value) || 0;
+  const min = parseInt(document.getElementById('tcDueMin').value) || 0;
+  document.getElementById('tcDueM').classList.toggle('has-value', m > 0);
+  document.getElementById('tcDueW').classList.toggle('has-value', w > 0);
+  document.getElementById('tcDueD').classList.toggle('has-value', d > 0);
+  document.getElementById('tcDueH').classList.toggle('has-value', h > 0);
+  document.getElementById('tcDueMin').classList.toggle('has-value', min > 0);
+
+  const total = document.getElementById('tcDueTotal');
+  const prefix = document.getElementById('tcDuePrefix');
+  const totalMs = m * 30 * 24 * 3600000 + (w * 7 + d) * 24 * 3600000 + h * 3600000 + min * 60000;
+  if (totalMs === 0) {
+    total.textContent = '未设置';
+    total.classList.remove('set');
+    prefix.classList.remove('set');
+  } else {
+    const totalMin = Math.ceil(totalMs / 60000);
+    const days = Math.floor(totalMin / 1440);
+    const hours = Math.floor((totalMin % 1440) / 60);
+    const mins = totalMin % 60;
+    const parts = [];
+    if (days > 0) parts.push(days + '天');
+    if (hours > 0) parts.push(hours + '时');
+    if (mins > 0) parts.push(mins + '分');
+    total.textContent = parts.join('') + '后';
+    total.classList.add('set');
+    prefix.classList.add('set');
+  }
+}
+
+function resetTcDue() {
+  document.querySelectorAll('.tc-due-seg').forEach(s => s.value = '0');
+  document.querySelectorAll('.tc-due-seg').forEach(s => s.classList.remove('has-value'));
+  updateDuePreview();
+}
+
+function handleDueCustom(sel, max) {
+  // Hide select, show inline number input next to it
+  const inp = document.createElement('input');
+  inp.type = 'number';
+  inp.min = '0';
+  inp.max = String(max);
+  inp.className = 'tc-due-seg-inp';
+  inp.value = '0';
+  sel.style.display = 'none';
+  sel.parentNode.insertBefore(inp, sel.nextSibling);
+  inp.focus();
+  inp.select();
+
+  let _done = false;
+  const done = () => {
+    if (_done) return; _done = true;
+    let v = parseInt(inp.value);
+    if (isNaN(v) || v < 0) v = 0;
+    if (v > max) v = max;
+    sel.value = String(v);
+    sel.style.display = '';
+    inp.remove();
+    updateDuePreview();
+  };
+  inp.onblur = () => setTimeout(done, 80);
+  inp.onkeydown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+    if (e.key === 'Escape') { sel.value = '0'; sel.style.display = ''; inp.remove(); updateDuePreview(); }
+  };
+}
+
 function bindTaskCreate() {
+  const selM = document.getElementById('tcDueM');
+  const selW = document.getElementById('tcDueW');
+  const selD = document.getElementById('tcDueD');
+  const selH = document.getElementById('tcDueH');
+  const selMin = document.getElementById('tcDueMin');
+
+  [selM, selW, selD, selH, selMin].forEach(sel => {
+    sel.onchange = function() {
+      if (this.value === '-1') {
+        const max = sel === selH ? 23 : sel === selMin ? 59 : 999;
+        handleDueCustom(this, max);
+      } else {
+        updateDuePreview();
+      }
+    };
+    sel.ondblclick = function(e) {
+      e.preventDefault();
+      const max = sel === selH ? 23 : sel === selMin ? 59 : 999;
+      handleDueCustom(this, max);
+    };
+  });
+
+  // Status dot
+  const tcStatusDot = document.getElementById('tcStatusDot');
+  const tcStatus = document.getElementById('tcStatus');
+  const updateDot = () => {
+    tcStatusDot.className = 'tc-status-dot ' + tcStatus.value.replace('inProgress', 'progress');
+  };
+  tcStatus.onchange = updateDot;
+  updateDot();
+
+  document.getElementById('tcSubtaskAdd').onclick = () => {
+    const inp = document.getElementById('tcSubtaskInput');
+    const text = inp.value.trim();
+    if (!text) return;
+    _tcSubtasks.push({ id: genId(), text, done: false });
+    inp.value = '';
+    renderTcSubtasks();
+    inp.focus();
+  };
+
+  document.getElementById('tcSubtaskInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('tcSubtaskAdd').click(); }
+  });
+
   document.getElementById('tcSubmit').onclick = () => {
     const title = document.getElementById('tcTitle').value.trim();
     if (!title) { document.getElementById('tcTitle').focus(); return; }
@@ -678,10 +1099,14 @@ function bindTaskCreate() {
       title: title,
       desc: desc,
       time: new Date().toLocaleDateString('zh-CN'),
-      noteColor: null
+      noteColor: null,
+      subtasks: JSON.parse(JSON.stringify(_tcSubtasks)),
+      dueDate: getTcDueDate()
     });
     document.getElementById('tcTitle').value = '';
     document.getElementById('tcBody').value = '';
+    resetTcSubtasks();
+    resetTcDue();
     document.getElementById('tcTitle').focus();
     activeKanbanCat = status;
     document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
@@ -833,6 +1258,18 @@ function bindStickyEvents() {
     });
   }
 
+  if (window.electronAPI.onDataChanged) {
+    window.electronAPI.onDataChanged(async (cardId) => {
+      data = await window.electronAPI.loadData();
+      migrateData();
+      renderKanban();
+      renderStickies();
+      updateDashboard();
+      updateTabCounts();
+      updateStats();
+    });
+  }
+
   if (window.electronAPI.onKanbanCardDeleted2) {
     window.electronAPI.onKanbanCardDeleted2(async (cardId, col) => {
       data = await window.electronAPI.loadData();
@@ -904,13 +1341,30 @@ function renderKanban() {
       el.dataset.idx = idx;
       el.dataset.id = card.id;
       const title = cardTitle(card);
+      const doneCount = (card.subtasks || []).filter(s => s.done).length;
+      const subLen = (card.subtasks || []).length;
+      let extraHtml = '';
+      if (subLen > 0) {
+        const pct = Math.round((doneCount / subLen) * 100);
+        extraHtml += `<div class="card-subtasks"><div class="card-sub-progress"><div class="card-sub-progress-fill" style="width:${pct}%"></div></div><span class="card-sub-label">${doneCount}/${subLen}</span></div>`;
+      }
+      if (card.dueDate) {
+        const now = new Date();
+        const due = new Date(card.dueDate);
+        let cls = 'upcoming';
+        if (due <= now) cls = 'overdue';
+        else if ((due - now) < 24 * 60 * 60 * 1000) cls = 'today';
+        const fmtDate = due.toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' });
+        const fmtTime = due.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        extraHtml += `<div class="card-due ${cls}">&#x1F4C5; ${fmtDate} ${fmtTime}</div>`;
+      }
       el.innerHTML = `<div class="card-title">${esc(title)}</div>
         <div class="card-foot">
           <span class="card-time">${card.time || ''}</span>
           <div class="card-acts">
             <button class="card-act e-pop" title="打开详情">&#x25C6;</button>
           </div>
-        </div>`;
+        </div>${extraHtml}`;
       el.addEventListener('dragstart', onDS);
       el.addEventListener('dragend', onDE);
       el.addEventListener('dragover', e => e.preventDefault());
@@ -1086,12 +1540,90 @@ function openNoteForCard(card, col) {
   document.getElementById('npText').value = cardDesc(card);
   document.getElementById('npStatus').value = col;
   document.getElementById('npColor').value = card.noteColor || '';
+  renderSubtasks(card.subtasks || []);
+  if (card.dueDate) {
+    const d = new Date(card.dueDate);
+    document.getElementById('npDueDate').value = d.toISOString().slice(0, 10);
+    document.getElementById('npDueTime').value = d.toISOString().slice(11, 16);
+  } else {
+    document.getElementById('npDueDate').value = '';
+    document.getElementById('npDueTime').value = '';
+  }
   document.getElementById('noteOverlay').classList.add('show');
 }
 function closeNoteModal() {
   document.getElementById('noteOverlay').classList.remove('show');
   noteEditing = null;
 }
+
+let _tempSubtasks = [];
+
+function formatDoneTime(iso) {
+  const d = new Date(iso);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 86400000);
+  const targetDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const tm = d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+  if (targetDay.getTime() === today.getTime()) return tm;
+  if (targetDay.getTime() === yesterday.getTime()) return '昨天 ' + tm;
+  return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + tm;
+}
+
+function renderSubtasks(subtasks) {
+  _tempSubtasks = JSON.parse(JSON.stringify(subtasks || []));
+  const list = document.getElementById('npSubtasks');
+  list.innerHTML = _tempSubtasks.map((st, i) => {
+    let timeStr = '';
+    if (st.done && st.doneAt) {
+      timeStr = formatDoneTime(st.doneAt);
+    }
+    return `
+    <div class="subtask-item2${st.done ? ' done' : ''}">
+      <input type="checkbox" ${st.done ? 'checked' : ''} data-idx="${i}" class="subtask-check">
+      <span class="subtask-text2">${esc(st.text)}</span>
+      ${timeStr ? `<span class="subtask-time">${esc(timeStr)}</span>` : ''}
+      <button class="subtask-del2" data-idx="${i}">&times;</button>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.subtask-check').forEach(cb => {
+    cb.onchange = () => {
+      const idx = parseInt(cb.dataset.idx);
+      _tempSubtasks[idx].done = cb.checked;
+      if (cb.checked) {
+        _tempSubtasks[idx].doneAt = new Date().toISOString();
+      } else {
+        delete _tempSubtasks[idx].doneAt;
+      }
+      renderSubtasks(_tempSubtasks);
+    };
+  });
+  list.querySelectorAll('.subtask-del2').forEach(btn => {
+    btn.onclick = () => {
+      _tempSubtasks.splice(parseInt(btn.dataset.idx), 1);
+      renderSubtasks(_tempSubtasks);
+    };
+  });
+}
+
+function initNoteOverlayBindings() {
+  document.getElementById('npAddSubtask').onclick = () => {
+    const inp = document.getElementById('npSubtaskInput');
+    const text = inp.value.trim();
+    if (!text) return;
+    _tempSubtasks.push({ id: genId(), text, done: false });
+    inp.value = '';
+    renderSubtasks(_tempSubtasks);
+  };
+  document.getElementById('npSubtaskInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('npAddSubtask').click(); }
+  });
+  document.getElementById('npClearDue').onclick = () => {
+    document.getElementById('npDueDate').value = '';
+    document.getElementById('npDueTime').value = '';
+  };
+}
+
 function saveNoteModal() {
   if (!noteEditing) return;
   const { card, col, isSticky } = noteEditing;
@@ -1103,6 +1635,17 @@ function saveNoteModal() {
   card.title = title;
   card.desc = desc;
   card.noteColor = newColor;
+  // Subtasks & due date
+  card.subtasks = JSON.parse(JSON.stringify(_tempSubtasks));
+  const dd = document.getElementById('npDueDate').value;
+  const dt = document.getElementById('npDueTime').value;
+  if (dd) {
+    card.dueDate = new Date(dd + (dt ? 'T' + dt + ':00' : 'T23:59:00')).toISOString();
+    card.dueReminded = false;
+  } else {
+    card.dueDate = null;
+    card.dueReminded = false;
+  }
   if (isSticky) {
     // Desktop copy: only status changes flow back to the original kanban card via _refId
     const refId = card._refId || card.id;
@@ -1249,6 +1792,8 @@ function syncCardToStickies(cardId) {
       s.title = orig.title;
       s.desc = orig.desc || '';
       s.noteColor = orig.noteColor || null;
+      s.subtasks = orig.subtasks || s.subtasks || [];
+      s.dueDate = orig.dueDate || s.dueDate || null;
       save();
       window.electronAPI.syncStickyData(s);
     }
@@ -1345,6 +1890,72 @@ function bindSettings() {
     await window.electronAPI.saveSettings(settings);
   };
 
+  // Auto-start
+  const togAuto = document.getElementById('togAutostart');
+  if (window.electronAPI.getAutostart) {
+    window.electronAPI.getAutostart().then(v => {
+      togAuto.checked = v;
+      settings._autostart = v;
+    });
+  } else {
+    togAuto.checked = !!settings._autostart;
+  }
+  togAuto.onchange = async e => {
+    settings._autostart = e.target.checked;
+    await window.electronAPI.setAutostart(e.target.checked);
+    await window.electronAPI.saveSettings(settings);
+  };
+
+  // Sticky default collapsed
+  const togSc = document.getElementById('togStickyCollapsed');
+  togSc.checked = !!settings._stickyCollapsed;
+  togSc.onchange = async e => {
+    settings._stickyCollapsed = e.target.checked;
+    await window.electronAPI.saveSettings(settings);
+  };
+
+  // Show due date (primary + sub for focus)
+  const togDue = document.getElementById('togShowDue');
+  const rowDueFocus = document.getElementById('rowDueFocus');
+  const togDueFocus = document.getElementById('togShowDueFocus');
+  togDue.checked = settings._showDue !== false; // default true
+  rowDueFocus.style.display = togDue.checked ? '' : 'none';
+  togDueFocus.checked = !!settings._showDueFocus;
+  togDue.onchange = async e => {
+    settings._showDue = e.target.checked;
+    rowDueFocus.style.display = e.target.checked ? '' : 'none';
+    if (!e.target.checked) {
+      settings._showDueFocus = false;
+      togDueFocus.checked = false;
+    }
+    await window.electronAPI.saveSettings(settings);
+    await window.electronAPI.broadcastToStickies({ type: 'settingsUpdate', _showDue: settings._showDue, _showDueFocus: settings._showDueFocus });
+  };
+  togDueFocus.onchange = async e => {
+    settings._showDueFocus = e.target.checked;
+    await window.electronAPI.saveSettings(settings);
+    await window.electronAPI.broadcastToStickies({ type: 'settingsUpdate', _showDue: settings._showDue, _showDueFocus: settings._showDueFocus });
+  };
+
+  // Focus subtasks show/hide
+  const togFs = document.getElementById('togFocusSubtasks');
+  togFs.checked = settings._focusShowSubtasks !== false;
+  togFs.onchange = async e => {
+    settings._focusShowSubtasks = e.target.checked;
+    await window.electronAPI.saveSettings(settings);
+    await window.electronAPI.broadcastToStickies({ type: 'settingsUpdate', _focusShowSubtasks: settings._focusShowSubtasks });
+  };
+
+  // Sticky show time
+  const togSt = document.getElementById('togStickyShowTime');
+  togSt.checked = !!settings._stickyShowTime;
+  togSt.onchange = async e => {
+    settings._stickyShowTime = e.target.checked;
+    await window.electronAPI.saveSettings(settings);
+    // Notify all stickies
+    await window.electronAPI.broadcastToStickies({ type: 'settingsUpdate', _stickyShowTime: settings._stickyShowTime });
+  };
+
   // Remember close choice
   const togRc = document.getElementById('togRememberClose');
   togRc.checked = !!settings._rememberClose;
@@ -1429,6 +2040,12 @@ function bindSettings() {
         applyTheme(settings.theme);
         document.getElementById('togPin').checked = !!settings.alwaysOnTop;
         document.getElementById('togRememberClose').checked = !!settings._rememberClose;
+        document.getElementById('togStickyCollapsed').checked = !!settings._stickyCollapsed;
+        document.getElementById('togStickyShowTime').checked = !!settings._stickyShowTime;
+        document.getElementById('togShowDue').checked = settings._showDue !== false;
+        document.getElementById('togShowDueFocus').checked = !!settings._showDueFocus;
+        document.getElementById('togFocusSubtasks').checked = settings._focusShowSubtasks !== false;
+        document.getElementById('rowDueFocus').style.display = (settings._showDue !== false) ? '' : 'none';
       }
       renderAll();
       save();
@@ -1456,76 +2073,6 @@ function applyTheme(th) {
   document.body.dataset.theme = th;
   document.querySelectorAll('#themeSelect button').forEach(b => b.classList.toggle('active', b.dataset.theme === th));
 }
-
-// ===== Update check =====
-var updStatus = document.getElementById('updStatus');
-var sideVer = document.getElementById('sideVersion');
-var aboutVer = document.getElementById('aboutVersion');
-var aboutCurVer = document.getElementById('aboutCurVer');
-var aboutUpd = document.getElementById('aboutUpdStatus');
-
-function syncUpdateUI(state, version, current) {
-  var apply = function(el, txt, cls) { el.textContent = txt; el.className = 'upd-status ' + cls; };
-  if (state === 'checking') {
-    apply(updStatus, 'checking...', 'checking');
-    apply(aboutUpd, 'checking...', 'checking');
-  } else if (state === 'up-to-date') {
-    apply(updStatus, 'already latest', 'up-to-date');
-    apply(aboutUpd, 'already latest', 'up-to-date');
-    aboutUpd.onclick = doCheckUpdate;
-    aboutUpd.title = 'click to check';
-    updStatus.onclick = doCheckUpdate;
-  } else if (state === 'has-update') {
-    apply(updStatus, 'new: v' + version, 'has-update');
-    apply(aboutUpd, 'new: v' + version, 'has-update');
-    updStatus.title = 'click to update';
-    aboutUpd.title = 'click to update';
-    var doDownload = function() {
-      apply(updStatus, 'downloading...', 'checking');
-      apply(aboutUpd, 'downloading...', 'checking');
-      window.electronAPI.downloadUpdate();
-    };
-    updStatus.onclick = doDownload;
-    aboutUpd.onclick = doDownload;
-  }
-  if (current) {
-    sideVer.textContent = 'Kanota v' + current;
-    aboutVer.textContent = 'v' + current;
-    aboutCurVer.textContent = 'v' + current;
-  }
-}
-
-async function doCheckUpdate() {
-  syncUpdateUI('checking');
-  var result = await window.electronAPI.checkUpdate();
-  if (result.upToDate) {
-    syncUpdateUI('up-to-date', '', result.currentVersion);
-  } else if (result.error) {
-    updStatus.textContent = 'check failed, retry';
-    updStatus.className = 'upd-status has-update';
-    aboutUpd.textContent = 'check failed, retry';
-    aboutUpd.className = 'upd-status has-update';
-    updStatus.onclick = doCheckUpdate;
-    aboutUpd.onclick = doCheckUpdate;
-  } else {
-    syncUpdateUI('has-update', result.latestVersion, result.currentVersion);
-  }
-}
-
-updStatus.onclick = doCheckUpdate;
-aboutUpd.onclick = doCheckUpdate;
-
-window.electronAPI.onUpdateAvailable(function(info) {
-  syncUpdateUI('has-update', info.version, info.current);
-});
-
-// Show version on load
-window.electronAPI.checkUpdate().then(function(r) {
-  sideVer.textContent = 'Kanota v' + r.currentVersion;
-  aboutVer.textContent = 'v' + r.currentVersion;
-  aboutCurVer.textContent = 'v' + r.currentVersion;
-  if (r.upToDate) syncUpdateUI('up-to-date', '', r.currentVersion);
-});
 
 init();
 </script>

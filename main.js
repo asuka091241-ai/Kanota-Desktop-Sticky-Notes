@@ -105,7 +105,7 @@ function createStickyWindow(cardData, screenX, screenY) {
 
   const stickyWin = new BrowserWindow({
     width: 340 + SHADOW_PAD * 2,
-    height: 54 + SHADOW_PAD * 2,
+    height: 200 + SHADOW_PAD * 2,
     x, y,
     minWidth: 280,
     minHeight: 54,
@@ -124,6 +124,13 @@ function createStickyWindow(cardData, screenX, screenY) {
   });
 
   stickyWindows.set(cardData.id, stickyWin);
+  // Respect "default collapsed" setting
+  const settings = loadJSON(SETTINGS_FILE, {});
+  if (settings._stickyCollapsed) {
+    cardData._collapsed = true;
+  } else {
+    delete cardData._collapsed;
+  }
   stickyWin.cardData = cardData;
   let ignoreClose = false;
 
@@ -182,25 +189,41 @@ ipcMain.handle('load-data', () => readData());
 ipcMain.handle('save-data', (_, data) => writeData(data));
 ipcMain.handle('load-settings', () => loadJSON(SETTINGS_FILE, { theme: 'light', alwaysOnTop: false }));
 ipcMain.handle('save-settings', (_, s) => saveJSON(SETTINGS_FILE, s));
+ipcMain.handle('broadcast-to-stickies', (_, msg) => {
+  stickyWindows.forEach(w => {
+    if (!w || w.isDestroyed()) return;
+    w.webContents.send('sticky:message', msg);
+  });
+});
+ipcMain.handle('sticky:loadSettings', () => loadJSON(SETTINGS_FILE, {}));
 
 // ===== Updates =====
 let latestRelease = null;
 
-async function checkForUpdate(showDialog) {
+async function checkForUpdate(showDialog = true) {
   const result = await updater.checkForUpdates(!showDialog);
-  if (result.upToDate || result.error) return;
+  if (result.upToDate) return;
+  if (result.error) return;
   latestRelease = result.release;
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('update:available', { version: result.latestVersion, current: result.currentVersion });
+    mainWindow.webContents.send('update:available', {
+      version: result.latestVersion,
+      current: result.currentVersion,
+      notes: (result.release || {}).body || '',
+    });
   }
   if (showDialog) {
     const { response } = await dialog.showMessageBox({
-      type: 'info', title: 'New Version Available',
-      message: 'Kanota v' + result.latestVersion + ' (current v' + result.currentVersion + ')',
+      type: 'info',
+      title: '发现新版本',
+      message: `Kanota v${result.latestVersion} 可用（当前 v${result.currentVersion}）`,
       detail: ((result.release || {}).body || '').slice(0, 300),
-      buttons: ['Update Now', 'Later'], defaultId: 0,
+      buttons: ['立即更新', '稍后'],
+      defaultId: 0,
     });
-    if (response === 0) await updater.downloadAndInstall(result.release, mainWindow);
+    if (response === 0) {
+      await updater.downloadAndInstall(result.release, mainWindow);
+    }
   }
 }
 
@@ -209,14 +232,14 @@ ipcMain.handle('check-update', async () => {
   if (result.upToDate) return { upToDate: true, currentVersion: result.currentVersion };
   if (result.error) return { error: result.error, currentVersion: result.currentVersion };
   latestRelease = result.release;
-  return { upToDate: false, currentVersion: result.currentVersion, latestVersion: result.latestVersion };
+  return { upToDate: false, currentVersion: result.currentVersion, latestVersion: result.latestVersion, notes: (result.release || {}).body || '' };
 });
 
 ipcMain.handle('download-update', async () => {
   if (!latestRelease) {
-    const r = await updater.checkForUpdates(true);
-    if (r.upToDate || r.error) return { ok: false };
-    latestRelease = r.release;
+    const result = await updater.checkForUpdates(true);
+    if (result.upToDate || result.error) return { ok: false };
+    latestRelease = result.release;
   }
   await updater.downloadAndInstall(latestRelease, mainWindow);
   return { ok: true };
@@ -320,6 +343,15 @@ ipcMain.handle('quit-app', () => {
 });
 ipcMain.handle('set-always-on-top', (_, v) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setAlwaysOnTop(v); return true; });
 
+// ===== Autostart =====
+ipcMain.handle('get-autostart', () => {
+  return app.getLoginItemSettings().openAtLogin;
+});
+ipcMain.handle('set-autostart', (_, v) => {
+  app.setLoginItemSettings({ openAtLogin: v });
+  return true;
+});
+
 // ===== Sticky IPC =====
 ipcMain.handle('open-sticky', (_, cardData, screenX, screenY) => {
   const w = createStickyWindow(cardData, screenX, screenY);
@@ -374,6 +406,25 @@ ipcMain.on('sticky:changeStatus', (event, flow) => {
   const d = data._stickies[idx];
   const refId = d._refId || d.id;
   let srcCol = d._sourceCol || 'todo';
+  // Reset: move from done back to todo
+  if (flow === 'reset') {
+    const doneCol = data.done || [];
+    const di = doneCol.findIndex(c => c.id === refId);
+    if (di >= 0) {
+      const [card] = doneCol.splice(di, 1);
+      if (!data.todo) data.todo = [];
+      data.todo.push(card);
+      d._sourceCol = 'todo';
+      d._stickyStatus = 'todo';
+      win.cardData = { ...d };
+      writeData(data);
+      win.webContents.send('sticky:update', win.cardData);
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        try { mainWindow.webContents.send('sticky:statusChanged', d.id, 'todo'); } catch (_) {}
+      }
+    }
+    return;
+  }
   let srcIdx = -1;
   if (data[srcCol]) srcIdx = data[srcCol].findIndex(c => c.id === refId);
   if (srcIdx < 0) {
@@ -486,6 +537,60 @@ ipcMain.handle('sticky:savePomoStats', (event, cardId, sessions, totalMin) => {
     }
   }
   writeData(data);
+  return true;
+});
+
+// ===== Subtask Sync =====
+ipcMain.handle('sticky:saveSubtasks', (_, cardId, subtasks) => {
+  const data = readData();
+  const sIdx = (data._stickies || []).findIndex(s => s.id === cardId);
+  if (sIdx >= 0) data._stickies[sIdx].subtasks = subtasks;
+  const d = data._stickies ? data._stickies[sIdx] : null;
+  if (d) {
+    const refId = d._refId || d.id;
+    for (const col of ['todo', 'inProgress', 'done']) {
+      const card = (data[col] || []).find(c => c.id === refId);
+      if (card) { card.subtasks = subtasks; break; }
+    }
+  }
+  writeData(data);
+  const sw = stickyWindows.get(cardId);
+  if (sw && !sw.isDestroyed() && sw.cardData) {
+    sw.cardData.subtasks = subtasks;
+    sw.webContents.send('sticky:update', sw.cardData);
+  }
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    try { mainWindow.webContents.send('sticky:dataChanged', cardId); } catch (_) {}
+  }
+  return true;
+});
+
+// ===== Due Date Sync =====
+ipcMain.handle('sticky:saveDueDate', (_, cardId, dueDate) => {
+  const data = readData();
+  const sIdx = (data._stickies || []).findIndex(s => s.id === cardId);
+  if (sIdx >= 0) {
+    data._stickies[sIdx].dueDate = dueDate;
+    data._stickies[sIdx].dueReminded = false;
+  }
+  const d = data._stickies ? data._stickies[sIdx] : null;
+  if (d) {
+    const refId = d._refId || d.id;
+    for (const col of ['todo', 'inProgress', 'done']) {
+      const card = (data[col] || []).find(c => c.id === refId);
+      if (card) { card.dueDate = dueDate; card.dueReminded = false; break; }
+    }
+  }
+  writeData(data);
+  const sw = stickyWindows.get(cardId);
+  if (sw && !sw.isDestroyed() && sw.cardData) {
+    sw.cardData.dueDate = dueDate;
+    sw.cardData.dueReminded = false;
+    sw.webContents.send('sticky:update', sw.cardData);
+  }
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    try { mainWindow.webContents.send('sticky:dataChanged', cardId); } catch (_) {}
+  }
   return true;
 });
 
@@ -719,11 +824,59 @@ ipcMain.handle('sync-sticky-data', (_, cardData) => {
       s._stickyStatus = cardData._toCol;
     }
     s.time = cardData.time || s.time;
+    s.subtasks = cardData.subtasks || s.subtasks || [];
+    s.dueDate = cardData.dueDate || s.dueDate || null;
+    s.dueReminded = cardData.dueReminded !== undefined ? cardData.dueReminded : s.dueReminded;
     writeData(data);
     w.cardData = { ...s };
     w.webContents.send('sticky:update', w.cardData);
   }
   return true;
+});
+
+// ===== Stats & Due Checks =====
+function parseDate(s) {
+  if (!s) return null;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+ipcMain.handle('kanban:getStatsData', () => {
+  const data = readData();
+  const now = new Date();
+  const todayStr = now.toLocaleDateString('zh-CN');
+  const allCards = [...(data.todo || []), ...(data.inProgress || []), ...(data.done || [])];
+  const todayDone = (data.done || []).filter(c => c.time === todayStr).length;
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  weekStart.setHours(0, 0, 0, 0);
+  const weekDone = (data.done || []).filter(c => {
+    const d = parseDate(c.time);
+    return d && d >= weekStart;
+  }).length;
+  let pomoSessions = 0, pomoTotalMin = 0;
+  for (const c of allCards) {
+    pomoSessions += c._pomoSessions || 0;
+    pomoTotalMin += c._pomoTotalMin || 0;
+  }
+  const dueSoon = allCards.filter(c => {
+    if (!c.dueDate) return false;
+    const due = new Date(c.dueDate);
+    return due > now && (due - now) < 24 * 60 * 60 * 1000;
+  }).length;
+  const overdue = allCards.filter(c => {
+    if (!c.dueDate) return false;
+    return new Date(c.dueDate) <= now;
+  }).length;
+  return {
+    todo: (data.todo || []).length,
+    inProgress: (data.inProgress || []).length,
+    done: (data.done || []).length,
+    todayDone, weekDone,
+    stickies: (data._stickies || []).length,
+    pomoSessions, pomoTotalMin,
+    dueSoon, overdue,
+  };
 });
 
 // ===== App =====
@@ -738,7 +891,7 @@ app.whenReady().then(() => {
   try {
     const trayIcon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
     tray = new Tray(trayIcon);
-    tray.setToolTip('Kanota — CaffYooO');
+    tray.setToolTip('Kanota — by CaffYooO');
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: '显示主窗口', click: () => { if (mainWindow) { mainWindow.show(); mainWindow.focus(); } } },
       { label: '检查更新', click: () => checkForUpdate(true) },
@@ -751,6 +904,31 @@ app.whenReady().then(() => {
   } catch (_) { /* tray creation may fail */ }
 
   createMainWindow();
+
+  // ===== Due date reminder polling (every 60s) =====
+  setInterval(() => {
+    const data = readData();
+    const now = new Date();
+    const allCards = [...(data.todo || []), ...(data.inProgress || []), ...(data.done || [])];
+    for (const card of allCards) {
+      if (!card.dueDate || card.dueReminded) continue;
+      const due = new Date(card.dueDate);
+      if (due <= now) {
+        card.dueReminded = true;
+        const sIdx = (data._stickies || []).findIndex(s => s._refId === card.id);
+        if (sIdx >= 0) data._stickies[sIdx].dueReminded = true;
+        writeData(data);
+        if (Notification.isSupported()) {
+          new Notification({
+            title: '任务到期',
+            body: '"' + (card.title || '无标题') + '" 已到截止时间',
+            urgency: 'critical',
+          }).show();
+        }
+      }
+    }
+  }, 60 * 1000);
+
   const data = readData();
   const seen = new Set();
   const stickies = (data._stickies || []).filter(c => {

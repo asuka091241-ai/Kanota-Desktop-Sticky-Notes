@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveData: (data) => ipcRenderer.invoke('save-data', data),
   loadSettings: () => ipcRenderer.invoke('load-settings'),
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
+  broadcastToStickies: (msg) => ipcRenderer.invoke('broadcast-to-stickies', msg),
   getDataPath: () => ipcRenderer.invoke('get-data-path'),
   setDataPath: (newPath, migrate) => ipcRenderer.invoke('set-data-path', newPath, migrate),
   pickFolder: () => ipcRenderer.invoke('pick-folder'),
@@ -27,13 +28,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onStickyRemoved: (callback) => ipcRenderer.on('sticky-removed', (_, cardId) => callback(cardId)),
   onStickyStatusChanged: (callback) => ipcRenderer.on('sticky-status-changed', (_, cardId, newStatus) => callback(cardId, newStatus)),
   onKanbanCardDeleted: (callback) => ipcRenderer.on('kanban-card-deleted', (_, cardId, col, stickyIds) => callback(cardId, col, stickyIds)),
-  // Updates
   onUpdateProgress: (callback) => ipcRenderer.on('update:progress', (_, pct) => callback(pct)),
   onUpdateStatus: (callback) => ipcRenderer.on('update:status', (_, status) => callback(status)),
   onUpdateAvailable: (callback) => ipcRenderer.on('update:available', (_, info) => callback(info)),
   checkUpdate: () => ipcRenderer.invoke('check-update'),
   downloadUpdate: () => ipcRenderer.invoke('download-update'),
-  // Colors
   onStickyColorChanged: (callback) => ipcRenderer.on('sticky-color-changed', (_, cardId, color) => callback(cardId, color)),
   onKanbanContextCommand: (callback) => ipcRenderer.on('kanban:context-command', (_, payload) => callback(payload)),
   // New events
@@ -57,4 +56,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   hideToTray: () => ipcRenderer.invoke('hide-to-tray'),
   quitApp: () => ipcRenderer.invoke('quit-app'),
   setAlwaysOnTop: (v) => ipcRenderer.invoke('set-always-on-top', v),
+
+  // Autostart
+  getAutostart: () => ipcRenderer.invoke('get-autostart'),
+  setAutostart: (v) => ipcRenderer.invoke('set-autostart', v),
+
+  // Stats
+  getStatsData: () => ipcRenderer.invoke('kanban:getStatsData'),
+
+  // Data change listener
+  onDataChanged: (callback) => ipcRenderer.on('sticky:dataChanged', (_, cardId) => callback(cardId)),
 });
