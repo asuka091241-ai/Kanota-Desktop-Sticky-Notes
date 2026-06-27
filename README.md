@@ -15,6 +15,7 @@
 - **右键菜单**：打开详情、更换颜色、删除卡片
 - 卡片支持 5 种颜色标签（黄/粉/蓝/绿/紫）
 - **拖到回收站**删除，支持恢复
+- 侧边栏显示版本信息和回收站入口
 
 ### 🪟 桌面便签
 - 从看板拖出卡片自动生成浮动便签
@@ -26,6 +27,15 @@
 - **开始/完成按钮**：右下角一键切换状态
 - 便签颜色、标题、内容与看板双向同步
 - 支持**截止时间**设置与显示
+- 支持**子任务**添加与管理
+
+### 👁 专注模式
+- 点击 👁 按钮进入**精简视图**
+- 隐藏侧边栏元素，只保留标题与正文，沉浸式工作
+- 顶部栏显示：状态点 + 标题 + 番茄倒计时 + 子任务折叠按钮 + 👁 + 📌
+- 有子任务时**折叠按钮出现在右上角** 👁 左侧，方便快速展开查看
+- 番茄打开时右侧显示红（工作中）/ 绿（休息中）倒计时
+- 可在设置中开关「专注模式显示子任务」和「截止时间」
 
 ### 🍅 番茄钟
 - 点击 ⏱ 按钮打开番茄计时条
@@ -34,27 +44,11 @@
 - 三轮自动：专注 → 休息 → 专注 → 休息 → 专注 → 完成 ✓
 - 工作时间自动累积到卡片
 
-### 👁 专注模式
-- 点击 👁 按钮进入**精简视图**
-- 顶栏：状态点 + 状态文字 + 番茄 + 👁 + 📌，下方横线分隔
-- 只显示标题 + 正文，沉浸式工作
-- 番茄打开时 bar 右侧显示红（工作中）/ 绿（休息中）倒计时
-- **子任务折叠**：左下角 `∨` 图标，默认折叠、点击展开
-- 可在设置中开关「专注模式显示子任务」
-
 ### 🎨 主题与界面
-- **浅色 / 深色**两种主题
+- **浅色 / 深色**两种主题（跟随系统偏好）
 - 窗口置顶开关
 - 记住关闭选择（托盘 vs 退出）
-- **侧边栏版本状态**：左下角显示当前版本和更新状态，点击检查更新
-- **可设置**：显示截止时间、专注模式截止时间、便签显示创建时间
-
-### 🔄 自动更新
-- 启动时静默检查 GitHub Release 最新版本
-- 有新版本时侧边栏左下角**绿色提示**「有新版本 vX.X」
-- 点击一键下载 → 自动替换 exe → 重启
-- 托盘菜单「检查更新」手动触发
-- 开发模式下仅下载提示位置，不自动替换
+- **可设置**：显示截止时间、专注模式截止时间、便签显示创建时间、专注模式子任务
 
 ### ⚙ 数据管理
 - 数据存储在可配置路径（默认 exe 同级 `data/` 文件夹）
@@ -68,8 +62,8 @@
 
 ### 方式一：下载运行（推荐）
 
-1. 打开 [Releases](https://github.com/asuka091241-ai/Kanota/releases) 页面
-2. 下载最新的 `Kanota.zip`
+1. 打开 [Releases](https://github.com/asuka091241-ai/Kanota-Desktop-Sticky-Notes/releases) 页面
+2. 下载最新的 `Kanota-vX.X.X.zip`
 3. 解压，双击 `Kanota.exe` 即可运行
 
 > 免安装，数据自动保存在解压目录的 `data/` 文件夹下。
@@ -79,7 +73,7 @@
 需要 Node.js 18+
 
 ```bash
-git clone https://github.com/asuka091241-ai/Kanota.git
+git clone https://github.com/asuka091241-ai/Kanota-Desktop-Sticky-Notes.git
 cd kanban-app
 npm install
 npm start
@@ -118,7 +112,7 @@ npm run build
 | 切换状态 | 点击右下角「开始/完成」按钮 |
 | 更换颜色 | 右键 → 换色 |
 | 专注模式 | 点击 👁 |
-| 展开子任务 | 专注模式下点击左下角 ∨ |
+| 展开子任务 | 专注模式下点击右上角 ∨ |
 | 移除 | 右键 → 从桌面移除（进入回收站） |
 
 ### 番茄钟操作
@@ -136,15 +130,17 @@ npm run build
 
 ```
 kanban-app/
-├── main.js            # Electron 主进程（窗口、托盘、IPC、数据存储、更新管理）
-├── preload.js         # 看板窗口预加载（安全 IPC 桥接）
-├── preload-sticky.js  # 便签窗口预加载
-├── updater.js         # GitHub 自动更新模块（版本检查、下载、安装）
-├── index.html         # 看板主界面（三列看板 + 侧边栏 + 设置 + 关于页）
-├── sticky.html        # 桌面便签界面（折叠/拖拽/番茄钟/专注模式/子任务）
-├── package.json       # 项目配置 & Electron Builder 打包配置
-├── icon.*             # 应用图标
-└── data/              # （运行时生成）数据文件
+├── main.js             # Electron 主进程（窗口、托盘、IPC、数据存储）
+├── preload.js          # 看板窗口预加载（安全 IPC 桥接）
+├── preload-sticky.js   # 便签窗口预加载
+├── index.html          # 看板主界面（三列看板 + 侧边栏 + 设置 + 关于页）
+├── sticky.html         # 桌面便签界面（折叠/拖拽/番茄钟/专注模式/子任务）
+├── package.json        # 项目配置 & Electron Builder 打包配置
+├── icon.*              # 应用图标
+├── tray-icon.*         # 托盘图标
+├── gen-tray.js         # 托盘图标生成脚本
+├── build-icon.js       # 图标构建脚本
+└── data/               # （运行时生成）数据文件
     ├── kanban-data.json
     ├── kanban-trash.json
     └── kanban-settings.json
@@ -157,19 +153,18 @@ kanban-app/
 | 层级 | 技术 |
 |------|------|
 | 框架 | Electron 35 |
-| 打包 | electron-builder (portable + zip) |
+| 打包 | electron-builder (portable) |
 | 进程通信 | IPC (contextBridge + ipcRenderer/ipcMain) |
 | 动画 | CSS transition + requestAnimationFrame |
 | 数据 | 本地 JSON 文件 |
 | 拖拽 | 原生 HTML5 Drag & Drop API |
 | 拉伸 | 主进程 polling `screen.getCursorScreenPoint()` |
-| 更新 | GitHub Release API + PowerShell 解压 + bat 替换安装 |
 
 ---
 
 ## 👤 作者
 
-**CaffYooO** — [github.com/asuka091241-ai/Kanota](https://github.com/asuka091241-ai/Kanota)
+**CaffYooO** — [github.com/asuka091241-ai/Kanota-Desktop-Sticky-Notes](https://github.com/asuka091241-ai/Kanota-Desktop-Sticky-Notes)
 
 如有问题或建议，欢迎提交 Issue 或邮件联系：**13257035176@163.com**
 
