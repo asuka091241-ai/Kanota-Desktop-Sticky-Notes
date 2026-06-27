@@ -4,7 +4,9 @@
 
 一边用看板拖拽管理任务进度，一边把卡片拖到桌面变成浮动便签，内置番茄钟专注计时。
 
-![看板界面](screenshots/kanban.png)
+| 三列看板 | 专注模式 | 番茄钟 |
+|:---:|:---:|:---:|
+| ![kanban](screenshots/kanban.png) | ![focus](screenshots/focus.png) | ![pomodoro](screenshots/pomodoro.png) |
 
 ---
 
